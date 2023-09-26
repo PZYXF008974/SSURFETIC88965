@@ -1,0 +1,63 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/gizlidostumbenim/library/main/library'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Perfectus Hub Loader",
+   LoadingTitle = "Starting",
+   LoadingSubtitle = "by PerfectusMim",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "RVnjYRWNA9", -- The Discord invite code, do not include discord.gg/
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+   KeySystem = true, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Oxygen Hub Key",
+      Subtitle = "Key System",
+      Note = "Join the discord and get key (discord.gg/RVnjYRWNA9)",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = "BigUpdateOxygenHub"
+   }
+})
+
+local Tab = Window:CreateTab("Script Loader", 4483362458) -- Title, Image
+
+
+local Label = Tab:CreateLabel("Script is Loading Please Wait.")
+
+local Games = {
+    [14236123211] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/punchsimloader", -- Punch Simulator
+    [13778544303] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/motorrace", -- Motorcycle Simulator
+    [14364445098] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/animeforce", -- Anime Force
+    [13916037343] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/kickdoor", -- Kick Door Simulator
+    [13681795330] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/push", -- Push Simulator
+    [12996550309] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/runstar", -- RunStar Race
+    [9285238704] = "https://raw.githubusercontent.com/PerfectusMim/dbevo/main/raceclicker", -- Race Clicker
+    [13370783664] = "https://raw.githubusercontent.com/gizlidostumbenim/pepepaaahhh/main/assssss", -- Anime Energy
+    
+}
+
+if Games[game.PlaceId] then
+    loadstring(game:HttpGet(Games[game.PlaceId]))()
+else
+Rayfield:Notify({
+	Title = "Oxygen Hub",
+	Content = "Game is Not Supported",
+	Duration = 6.5,
+	Image = 4483362458,
+	Actions = { -- Notification Buttons
+		Ignore = {
+			Name = "Okay!",
+			Callback = function()
+				print("The user tapped Okay!")
+			end
+		},
+	},
+})
+end
