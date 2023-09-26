@@ -16,17 +16,17 @@ local Window = Rayfield:CreateWindow({
    },
    KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
-      Title = "Oxygen Hub Key",
+      Title = "Perfectus Hub Key",
       Subtitle = "Key System",
       Note = "Join the discord and get key (discord.gg/RVnjYRWNA9)",
       FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = "BigUpdateOxygenHub"
+      Key = ""
    }
 })
 
-local Tab = Window:CreateTab("Script Loader", 4483362458) -- Title, Image
+local Tab = Window:CreateTab("Script Loader", 14887567417) -- Title, Image
 
 
 local Label = Tab:CreateLabel("Script is Loading Please Wait.")
@@ -46,10 +46,10 @@ if Games[game.PlaceId] then
     loadstring(game:HttpGet(Games[game.PlaceId]))()
 else
 Rayfield:Notify({
-	Title = "Oxygen Hub",
+	Title = "Perfectus Hub",
 	Content = "Game is Not Supported",
 	Duration = 6.5,
-	Image = 4483362458,
+	Image = 14887567417,
 	Actions = { -- Notification Buttons
 		Ignore = {
 			Name = "Okay!",
