@@ -1,1 +1,112 @@
-.
+local oldscript = script
+local PandaAuth = loadstring(game:HttpGet(('https://pandadevelopment.net/service_api/PandaAuthBeta2.lua')))()
+local KeyLib = loadstring(game:HttpGet(('https://pandadevelopment.net/scripts/UILib/OrionHub.lua')))()
+
+-- IMPORTTANT -----------------------
+if islclosure(getgenv().setfenv) then while true do end end -- ANTI SETFENV TAMPERING
+if islclosure(getgenv().tostring) then while true do end end -- ANTI TOSTRING TAMPERING
+if PandaAuth.GetLink and PandaAuth.LoadScript and PandaAuth.ValidateKey and PandaAuth.SaveKey and PandaAuth.LoadKey then
+else -- ANTI Tampering
+    while true do end
+end
+------------------------------------
+
+print("LOADED")
+local service_name = "PerfectusHub" -- Put you hub service name here
+local Check
+
+local KeyWindow = KeyLib:MakeWindow({Name = "Key System", HidePremium = false, SaveConfig = false, ConfigFolder = "PandaSH"})
+local KeyTab = KeyWindow:MakeTab({
+    Name = "Key System",
+    Icon = "rbxassetid://14887567417",
+})
+
+KeyTab:AddTextbox({
+    Name = "Key",
+    Default = "",
+    Callback = function(Value)
+        print("Input Key: "..Value)
+        if PandaAuth:ValidateKey(service_name, Value) then
+            PandaAuth:SaveKey("perfectushubtest.txt",tostring(Value))
+            KeyLib:MakeNotification({
+                Name = "Perfectus Script Hub",
+                Content = "Key Successfully Validated",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+            local User = {"Encrypted","EZ","x9PSwiftz"} -- Fake
+            local Fake = {"example","Minecraft","BloxFruit"} -- Fake Script Github Name 
+            PandaAuth:LoadScript(User,"PZYXF008974",Fake,"https://raw.githubusercontent.com/PZYXF008974/SSURFETIC88965/main/1")
+        KeyLib:Destroy()
+        else
+            KeyLib:MakeNotification({
+                Name = "Perfectus Script Hub",
+                Content = "Invalid Key..Please Try again",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+        end
+    end
+})
+
+KeyTab:AddButton({
+    Name = "Get Key",
+    Callback = function()
+        setclipboard(PandaAuth:GetLink(service_name))
+        KeyLib:MakeNotification({
+            Name = "Perfectus Script Hub",
+            Content = "Copied to your clipboard, Paste it on your browser to begin getting the key",
+            Image = "rbxassetid://14887567417",
+            Time = 5
+        })
+    end
+})
+
+KeyTab:AddButton({
+    Name = "Load Saved Key",
+    Callback = function()
+        local Key = PandaAuth:LoadKey("perfectushubtest.txt")
+        setclipboard(tostring(Key))
+        KeyLib:MakeNotification({
+            Name = "Perfectus Script Hub",
+            Content = "Key is : "..tostring(Key),
+            Image = "rbxassetid://14887567417",
+            Time = 5
+        })
+        KeyTab:AddTextbox({
+            Name = "Here The Key",
+            Default = tostring(Key),
+        })
+    end
+})
+
+-- IMPORTTANT -----------------------
+
+local function RandomString(length)
+    local randomString = ""
+    for i = 1, length do
+        local randomNumber = math.random(97, 122)
+        randomString = randomString .. string.char(randomNumber)
+    end
+    return tostring(randomString)
+end
+
+Check = true
+local oldstring = ""
+spawn(function()
+    while Check do
+        local String = RandomString(10)
+        if String == oldstring then
+            while true do end
+        end 
+        if PandaAuth:GetLink("pandadevkit") == nil or PandaAuth:ValidateKey("pandadevkit", RandomString(10)) then
+            while true do end
+        end
+        oldstring = RandomString(10)
+        task.wait(2)
+    end
+end)
+
+setfenv(1,{})
+script = oldscript
+---------------------------------
