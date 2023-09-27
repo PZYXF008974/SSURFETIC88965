@@ -31,8 +31,12 @@ local character = player.Character
 local BINDABLE = RS.Bindable
 local REMOTE = RS.Remote
 local clickmodule = require(game:GetService("Players").LocalPlayer.PlayerGui.MainGui.MainGuiHandler.HUD.BottomButtons.Clicker)
-local IGNORED_WORLDS = {"Raid","Tower","Champion City"}
+local ultimodule = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.HUD.BottomButtons.AbilityButton
+local IGNORED_WORLDS = {"Raid","Tower"}
 local worldData = require(RS.ModuleScripts.Config.WorldData)
+local client = game.Players.LocalPlayer
+local currentworld = client.World.Value
+
 --hatch 
 local mobs = {}
 _G.disabled = false
@@ -146,6 +150,8 @@ end)
 
             autoclick = nil
         end)
+
+        
 		task.spawn(function()
             while not _G.disabled do
                 if autosummon then
@@ -187,10 +193,6 @@ local Dropdown = Main:AddDropdown({
         mobs = getMobs()
         Dropdown:Refresh(mobs,true)
         Dropdown:Set(false)
-        Dropdown2:Refresh(mobs,true)
-        Dropdown2:Set(false)
-        Dropdown3:Refresh(mobs,true)
-        Dropdown3:Set(false)
     end
 })
 Main:AddToggle({
@@ -211,6 +213,44 @@ Main:AddToggle({
         Teleport=toggleState
     end
 })
+
+local function getClosestMob3()
+    local dist, thing = math.huge
+    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
+        if v.Name == "HumanoidRootPart" then
+            local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
+            if mag < dist then
+                dist = mag
+                thing = v
+            end
+        end
+    end
+    if thing then
+        return thing
+    else
+        return nil
+    end
+end
+Main:AddToggle({
+    Name = "Auto Tween Mob Area (Open Auto Attack Gamepass)",
+    Default = false,
+    Save = true,
+    Callback = function(Value)
+        bass = Value
+        while bass do
+            task.wait()
+            repeat
+                task.wait()
+            until game.Players.LocalPlayer.Character ~= nil
+            local mobass = getClosestMob3()
+            if mobass then
+                local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobass.CFrame * CFrame.new(0,0,7)})
+                tween:Play()
+            end
+        end
+    end,
+})
 Main:AddSection({
     Name = "Features"
 })
@@ -220,9 +260,11 @@ Main:AddToggle({
     Save = true,
     Flag = "AUTO CLICK",
     Callback = function(toggleState)
-        autoclick=toggleState
+        autoclick = toggleState
+        
     end
 })
+
 Main:AddToggle({
     Name = "Auto Collect",
     Default = false,
@@ -235,14 +277,137 @@ Main:AddToggle({
 Main:AddSection({		
     Name = "Spirit"
 })
+
+
 Main:AddToggle({
-    Name = "Auto Spirit Farm",
+    Name = "Normal Spirit Farm",
     Callback = function(Value)
-     at = Value
-        while at do task.wait(0.1)
-local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+     spiritfarm = Value
+        while spiritfarm do task.wait()
 game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
-		end
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))        
+        end
+    end
+})    
+Main:AddToggle({
+    Name = "Inf Spirit Farm",
+    Callback = function(Value)
+     spiritfarm2 = Value
+        while spiritfarm2 do task.wait(0.1)
+local args = {[1] = "OnePiece"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+
+wait(0.5)
+local args = {[1] = "MHA"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+
+wait(0.5)
+local args = {[1] = "Naruto"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+
+wait(0.5)
+local args = {[1] = "DBZ"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+
+wait(0.5)
+local args = {[1] = "DemonSlayer"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+
+wait(0.5)
+local args = {[1] = "Jojo"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+        
+        end
     end
 })
 local hatch = Window:MakeTab({
@@ -250,193 +415,73 @@ local hatch = Window:MakeTab({
     Icon = "rbxassetid://14887567417",
     PremiumOnly = false
  })
---[[["Dragon Orb"] = game.Workspace.Worlds.DBZ.DBZOrb,
-	["Pirate Orb"] = game.Workspace.Worlds.OnePiece.OnePieceOrb,
-	["Hero Orb"] =  game.Workspace.Worlds.MHA.NMHAOrb,
-	["Ninja Orb"] =  game.Workspace.Worlds.Naruto.NarutoOrb,
-	["Strange Orb"] =  game.Workspace.Worlds.Jojo.BizarreOrb,
-	["Demon Orb"] =  game.Workspace.Worlds.DemonSlayer.DemonOrb,]]--
 
+
+local eqbest = client.PlayerGui.MainGui.Windows.Pets.BottomBar.BottomButtons.EquipBestButton
+
+local eggs ={}
+for _,v in pairs(game:GetService("ReplicatedStorage").ReplicatedAssets.Orbs:GetChildren()) do
+    table.insert(eggs,v.Name)
+end
+
+local eggtoopen
+hatch:AddDropdown({
+	Name = "Select to Orb",
+	Options = eggs,
+	Callback = function(Option)
+        eggtoopen = Option
+	end,
+})
+
+
+local openegg
 hatch:AddToggle({
-    Name = "Auto Hatch One Piece Orb",
+	Name = "Open Orb",
     Default = false,
     Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon = val
-        while autosummon do wait(0.1)
-local args = {[1] = workspace.Worlds.OnePiece.OnePieceOrb,
-[2] = 1
+	Callback = function(Value)
+		openegg = Value
+        if Value then
+            spawn(function()
+                openegg_func()
+            end)
+          end
+	end,
+})
+local howmuch
+    hatch:AddSlider({
+    Name = "How many opens?",
+    Min = 0,
+    Max = 12,
+    Default = 1,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "/s",
+    Callback = function(dly1)
+    howmuch = dly1
+    end  
+})
+hatch:AddButton({
+	Name = "Tp Orb",
+	Callback = function(Value)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Worlds[currentworld][eggtoopen]["RootPart"].CFrame
+	end,
+})
+
+
+
+function openegg_func()
+    spawn(function()
+        while wait(0.1) and openegg do
+local args = {
+[1] = workspace.Worlds[currentworld][eggtoopen],
+[2] = howmuch
 }
 game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
         end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch DBZ Orb",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon2 = val
-        while autosummon2 do wait(0.1)
-local args = {[1] = Workspace.Worlds.DBZ.DBZOrb,
-[2] = 1
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch MHA Orb",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon3 = val
-        while autosummon3 do wait(0.1)
-local args = {[1] = Workspace.Worlds.MHA.MHAOrb,
-[2] = 1
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Demon Slayer Orb",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon4 = val
-        while autosummon4 do wait(0.1)
-local args = {[1] = Workspace.Worlds.DemonSlayer.DemonOrb,
-[2] = 1
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Naruto Orb",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon5 = val
-        while autosummon5 do wait(0.1)
-local args = {[1] = Workspace.Worlds.Naruto.NarutoOrb,
-[2] = 1
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Jojo Orb",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummon8 = val
-        while autosummon8 do wait(0.1)
-local args = {[1] = Workspace.Worlds.JJK.BizarreOrb,
-[2] = 1
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch One Piece Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummont = val
-        while autosummont do wait(0.1)
-local args = {[1] = workspace.Worlds.OnePiece.OnePieceOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch DBZ Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummont2 = val
-        while autosummont2 do wait(0.1)
-local args = {[1] = Workspace.Worlds.DBZ.DBZOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch MHA Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummont3 = val
-        while autosummont3 do wait(0.1)
-local args = {[1] = Workspace.Worlds.MHA.MHAOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Demon Slayer Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select Tripl",
-    Callback = function(val)
-        autosummont4 = val
-        while autosummont4 do wait(0.1)
-local args = {[1] = Workspace.Worlds.DemonSlayer.DemonOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Naruto Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummont5 = val
-        while autosummont5 do wait(0.1)
-local args = {[1] = Workspace.Worlds.Naruto.NarutoOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
-hatch:AddToggle({
-    Name = "Auto Hatch Jojo Orb Triple",
-    Default = false,
-    Save = true,
-    Flag = "Auto Hatch Orb Select",
-    Callback = function(val)
-        autosummont2 = val
-        while autosummont2 do wait(0.1)
-local args = {[1] = Workspace.Worlds.JJK.BizarreOrb,
-[2] = 3
-}
-game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
-        end
-    end
-})
+    end)
+end
+
 
 local tw = Window:MakeTab({
     Name = "Tower",
@@ -470,7 +515,7 @@ local function getClosestMob2()
     end
 end
 tw:AddToggle({
-    Name = "Auto Tween Mob",
+    Name = "Auto Tween Mob (Open Auto Attack Gamepass)",
     Default = false,
     Save = true,
     Callback = function(Value)
@@ -483,7 +528,7 @@ tw:AddToggle({
             local mobas = getClosestMob2()
             if mobas then
                 local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas.CFrame * CFrame.new(0,0,2)})
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas.CFrame * CFrame.new(0,0,7)})
                 tween:Play()
             end
         end
@@ -520,7 +565,7 @@ wait(dl1)
 local function getClosestMob()
     local dist, thing = math.huge
     for i, v in next, game:GetService("Workspace").Worlds.Tower:GetDescendants() do
-        if v.Name == "ChestSpawn" then
+        if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
                 dist = mag
@@ -548,7 +593,7 @@ tw:AddToggle({
             until game.Players.LocalPlayer.Character ~= nil
             local moba = getClosestMob()
             if moba then
-                local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
                 local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = moba.CFrame * CFrame.new(0,0,2)})
                 tween:Play()
             end
@@ -556,66 +601,66 @@ tw:AddToggle({
     end,
 })
 
-local p = game.Players.LocalPlayer.PlayerGui.MainGui.Windows
+local p = game.Players.LocalPlayer.PlayerGui.MainGui
 
 local ggui = Window:MakeTab({
     Name = "GUI",
     Icon = "rbxassetid://14887567417",
     PremiumOnly = false
  }) 
- ggui:AddButton({
-    Name = "Close All Gui",
-    Default = false,
-    Save = true,
-    Callback = function(val)
-p.SecretMachine.Visible = false
-p.PassiveMachine.Visible = false
-p.TierMachine.Visible = false
-p.TalentMachine.Visible = false
-p.EssenceMachine.Visible = false
-    end
+
+local gui ={}
+for _,v in pairs(client.PlayerGui.MainGui.Windows:GetChildren()) do
+    table.insert(gui,v.Name)
+end
+
+local openthegui
+ggui:AddDropdown({
+	Name = "Select to Gui",
+	Options = gui,
+	Callback = function(Option)
+        openthegui = Option
+	end,
 })
-ggui:AddButton({
-    Name = "Open Secret Machine",
+
+ggui:AddToggle({
+	Name = "Open Selected Gui",
     Default = false,
-    Save = true,
-    Callback = function(val)
-p.SecretMachine.Visible = true
-    end
+	Callback = function(Value)
+		opengui = Value
+        if Value then
+            spawn(function()
+                opengui_func()
+            end)
+        end
+	end,
 })
-ggui:AddButton({
-    Name = "Open Passive Machine",
+
+ggui:AddToggle({
+	Name = "Close Selected Gui",
     Default = false,
-    Save = true,
-    Callback = function(val)
-p.PassiveMachine.Visible = true
-    end
+	Callback = function(Value)
+		opengui2 = Value
+        if Value then
+            spawn(function()
+                opengui_func2()
+            end)
+        end
+	end,
 })
-ggui:AddButton({
-    Name = "Open Tier Machine",
-    Default = false,
-    Save = true,
-    Callback = function(val)
-p.TierMachine.Visible = true
-    end
-})
-ggui:AddButton({
-    Name = "Open Talent Machine",
-    Default = false,
-    Save = true,
-    Callback = function(val)
-p.TalentMachine.Visible = true
-    end
-})
-ggui:AddButton({
-    Name = "Open Essence Machine",
-    Default = false,
-    Save = true,
-    Callback = function(val)
-p.EssenceMachine.Visible = true
-    end
-})
-p.TalentMachine.Visible = false
+
+function opengui_func()
+    spawn(function()
+    client.PlayerGui.MainGui.Windows[openthegui].Visible = true
+    end)
+end
+
+function opengui_func2()
+    spawn(function()
+    client.PlayerGui.MainGui.Windows[openthegui].Visible = false
+    end)
+end
+
 local displayNameToWorldName = {}
 local ttp = Window:MakeTab({
     Name = "Teleport",
