@@ -41,6 +41,7 @@ local Games = {
 
 if Games[game.PlaceId] then
     loadstring(game:HttpGet(Games[game.PlaceId]))()
+    Rayfield:Destroy()
 else
 Rayfield:Notify({
 	Title = "Perfectus Hub",
