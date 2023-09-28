@@ -56,16 +56,14 @@ local function TweenTo(cf, dur)
     return tween
 end
 
-getgenv().SecureMode = false
 
-setclipboard("discord.gg/RVnjYRWNA9")
 local Window = Rayfield:CreateWindow({
 	Name = name,
 	LoadingTitle = "Perfectus Hub",
 	LoadingSubtitle = "by Perfectus",
 	ConfigurationSaving = {
-		Enabled = false,
-		FolderName = nil, 
+		Enabled = true,
+		FolderName = "OxygenH", 
 		FileName = "Oxygen"
 	},
         Discord = {
@@ -81,7 +79,7 @@ local Window = Rayfield:CreateWindow({
       FileName = "k",
       SaveKey = true,
       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = ""
+      Key = "Hello"
    }
 })
 
