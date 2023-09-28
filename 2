@@ -1,6 +1,14 @@
+repeat wait() until game:IsLoaded()
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loading Hub", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
+
+
 local name = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name;
-local name2 = "Updates" 
-local client = game.Players.LocalPlayer 
+local name2 = "Updates"
+local client = game.Players.LocalPlayer
 local Plr = game.Players.LocalPlayer
 local vu = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
@@ -56,14 +64,16 @@ local function TweenTo(cf, dur)
     return tween
 end
 
+getgenv().SecureMode = true
 
+setclipboard("discord.gg/RVnjYRWNA9")
 local Window = Rayfield:CreateWindow({
 	Name = name,
 	LoadingTitle = "Perfectus Hub",
 	LoadingSubtitle = "by Perfectus",
 	ConfigurationSaving = {
 		Enabled = true,
-		FolderName = "OxygenH", 
+		FolderName = "Oxygen", 
 		FileName = "Oxygen"
 	},
         Discord = {
@@ -76,29 +86,16 @@ local Window = Rayfield:CreateWindow({
       Title = "Perfectus Hub",
       Subtitle = "Key System",
       Note = "Copied The Discord Invite",
-      FileName = "k",
+      FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = "Hello"
+      Key = "racist10"
    }
 })
 
 local Tab = Window:CreateTab("Main", 7539983773)
+local Tab5 = Window:CreateTab("Auto Open",9194077649)
 
-Rayfield:Notify({
-   Title = "Perfectus Hub Executed",
-   Content = "Vip Mod",
-   Duration = 5,
-   Image = nil,
-   Actions = { -- Notification Butto ns
-      Ignore = {
-         Name = "Okay",
-         Callback = function()
-         print("Started Perfectus Hub")
-      end
-   },
-},
-})
 Tab:CreateSection("Discord")
 Tab:CreateLabel("discord.gg/RVnjYRWNA9")
 
@@ -420,12 +417,26 @@ function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName
 local ggf = client.PlayerGui.PlaytimeRewards.Frame.Frame
 Tab:CreateSection("Gifts, Spin")
 
+local dds3
+	Tab:CreateSlider({
+		Name = "Auto Claim Gifts Delay ( /s )",
+		Range = {
+			0.1,
+			10
+		},
+		Increment = 0.1,
+		Suffix = "/s",
+		CurrentValue = 1,
+		Callback = function(value)
+        dds3 = value
+		end
+	})
 Tab:CreateToggle({
 	Name = "Auto Claim Gifts",
 	CurrentValue = false,
 	Callback = function(Value)
     collectgifts = Value
-            while collectgifts do task.wait(1)
+            while collectgifts do task.wait(dds3)
 local args = {[1] = 1}game:GetService("ReplicatedStorage").Events.PlaytimeRewardUpdateEvent:FireServer(unpack(args))
 local args = {[1] = 2}game:GetService("ReplicatedStorage").Events.PlaytimeRewardUpdateEvent:FireServer(unpack(args))
 local args = {[1] = 3}game:GetService("ReplicatedStorage").Events.PlaytimeRewardUpdateEvent:FireServer(unpack(args))
@@ -493,15 +504,13 @@ local cc2 = client.PlayerGui.EquipmentShop.Frame["3"].EquipmentName
 Label3 = Tab:CreateLabel(cc2.Text)
 
 Tab:CreateSection("Equipments Shop Refresh")
-Tab:CreateToggle({
-	Name = "Auto Refresh Equipment Shop",
+Tab:CreateButton({
+	Name = "Print Equipment Shop Item Name",
 	CurrentValue = false,
 	Callback = function(Value)
-    eqshop = Value
-            while eqshop do task.wait(1)
-client.PlayerGui.EquipmentShop.Enabled = true wait()	
-client.PlayerGui.EquipmentShop.Enabled = false wait(60)
-		end
+    print(client.PlayerGui.EquipmentShop.Frame["1"].EquipmentName)
+    print(client.PlayerGui.EquipmentShop.Frame["2"].EquipmentName)
+    print(client.PlayerGui.EquipmentShop.Frame["3"].EquipmentName)      
 	end,
 })
 Tab:CreateSection("Equipments Buy")
@@ -602,6 +611,20 @@ Tab:CreateDropdown({
 	end,
 })
 
+local dds
+	Tab:CreateSlider({
+		Name = "Auto Buy Black Smith Delay ( /s )",
+		Range = {
+			0.01,
+			10
+		},
+		Increment = 0.01,
+		Suffix = "/s",
+		CurrentValue = 0.01,
+		Callback = function(value)
+        dds = value
+		end
+	})
 
 local openegg11
 Tab:CreateToggle({
@@ -616,6 +639,8 @@ Tab:CreateToggle({
         end
 	end,
 })
+
+
 Tab:CreateToggle({
 	Name = "Hide Craft Effect, Image",
 	CurrentValue = false,
@@ -631,7 +656,7 @@ client.PlayerGui.EquipmentPickup.Enabled = false
 
 function openegg_func11()
     spawn(function()
-        while wait(0.1) and openegg11 do
+        while wait(dds) and openegg11 do
 local args = 
 eggtoopen11
 game:GetService("ReplicatedStorage").Events.CraftingEvent:FireServer(unpack(args))
@@ -646,7 +671,7 @@ for _,v in pairs(game.ReplicatedStorage.Images.Gloves:GetChildren()) do
     table.insert(eggs1,v.Name)
 end
 
-local eggtoopen1 = "iagree"
+local eggtoopen1
 Tab:CreateDropdown({
 	Name = "Select to Gloves",
 	Options = eggs1,
@@ -656,6 +681,20 @@ Tab:CreateDropdown({
 	end,
 })
 
+local ddss
+	Tab:CreateSlider({
+		Name = "Auto Equip Gloves Delay ( /s )",
+		Range = {
+			1,
+			30
+		},
+		Increment = 1,
+		Suffix = "/s",
+		CurrentValue = 1,
+		Callback = function(value)
+        ddss = value
+        end
+	})
 
 local openegg1
 Tab:CreateToggle({
@@ -676,7 +715,7 @@ Tab:CreateToggle({
 
 function openegg_func1()
     spawn(function()
-        while wait(1) and openegg1 do
+        while wait(ddss) and openegg1 do
 local args = 
 eggtoopen1
 
@@ -1304,7 +1343,7 @@ local inv = client.PlayerGui.Pets.Frame.MaxPets.MaxPetNumber
 local index = client.PlayerGui.PetsIndex.Frame.Bottom.fillbar.Number
 
 
-local Tab5 = Window:CreateTab("Auto Open",9194077649)
+
 
 Tab5:CreateSection("Inventory Stat")
 
@@ -1377,6 +1416,20 @@ Tab5:CreateDropdown({
 	end,
 })
 
+local opegg
+	Tab5:CreateSlider({
+		Name = "Open Egg Delay ( /s )",
+		Range = {
+			0.01,
+			5
+		},
+		Increment = 0.01,
+		Suffix = "/s",
+		CurrentValue = 0.01,
+		Callback = function(value)
+        opegg = value
+		end
+	})
 
 local openegg
 Tab5:CreateToggle({
@@ -1407,7 +1460,7 @@ Tab5:CreateToggle({
 
 function openegg_func()
     spawn(function()
-        while wait(0.1) and openegg do
+        while wait(opegg) and openegg do
 local args = 
    eggtoopen
 game:GetService("ReplicatedStorage").Events.PlayerPressedKeyOnEgg:FireServer(unpack(args))
@@ -1416,7 +1469,7 @@ game:GetService("ReplicatedStorage").Events.PlayerPressedKeyOnEgg:FireServer(unp
 end
 function openegg_func2()
     spawn(function()
-        while wait(0.1) and openegg2 do
+        while wait(opegg) and openegg2 do
 local args = 
    eggtoopen
 game:GetService("ReplicatedStorage").Events.ThreeEggOpenOwned:FireServer(unpack(args))
@@ -2460,6 +2513,9 @@ local Tabss = Window:CreateTab(name2,14198073343)
 
 local Labelaa = Tabss:CreateSection("Perfectus Hub Updates")
 
+Tabss:CreateParagraph({Title = "Update 5.3", Content = "New Slider, Bug Fixed"})
+
+
 Tabss:CreateParagraph({Title = "Update 5.2", Content = "New Toggle, New Tab, Bug Fixed"})
 
 
@@ -2482,6 +2538,14 @@ Tabss:CreateParagraph({Title = "Update 2", Content = "Auto Powercore, Auto Glove
 
 
 local Paragraph = Tabss:CreateParagraph({Title = "Update 1", Content = "Auto Wish, Auto Hacker, New Universal, Fixed Optimization"})
+
+
+
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loaded", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
 
 while wait() do
 Label11:Set(cs.Text)
