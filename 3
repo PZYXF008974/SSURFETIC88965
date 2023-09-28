@@ -1,3 +1,24 @@
+repeat wait() until game:IsLoaded()
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loading Hub", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
+
+
+local args = {[1] = 1}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+local args = {[1] = 2}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+local args = {[1] = 3}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+local args = {[1] = 4}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+local args = {[1] = 5}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+local args = {[1] = 6}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+wait(1.5)
+
 local name = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name;
 local name2 = "Updates"
 local client = game.Players.LocalPlayer
@@ -19,7 +40,7 @@ getgenv().esp_loaded = false
 getgenv().Visibility = false
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Player = game:GetService("Players").LocalPlayer or game:GetService("Players").PlayerAdded:Wait()
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local function Click(v)
 	VirtualInputManager:SendMouseButtonEvent(v.AbsolutePosition.X+v.AbsoluteSize.X/2,v.AbsolutePosition.Y+50,0,true,v,1)
@@ -63,8 +84,8 @@ local Window = Rayfield:CreateWindow({
 	LoadingSubtitle = "by Perfectus",
 	ConfigurationSaving = {
 		Enabled = true,
-		FolderName = nil, 
-		FileName = "Oxygen"
+		FolderName = "Perfectus Hub", 
+		FileName = "Perfectus Hub",
 	},
         Discord = {
         	Enabled = true,
@@ -86,30 +107,7 @@ local Window = Rayfield:CreateWindow({
 
 local Tab = Window:CreateTab("Main", 7539983773)
 
-Rayfield:Notify({
-   Title = "Perfectus Hub Executed",
-   Content = "Standart Mod",
-   Duration = 5,
-   Image = nil,
-   Actions = { -- Notification Butto ns
-      Ignore = {
-         Name = "Okay",
-         Callback = function()
-         print("Started Perfectus Hub")
-      end
-   },
-},
-})
-Tab:CreateSection("Discord")
-Tab:CreateLabel("Join My Discord")
-Tab:CreateLabel("discord.gg/RVnjYRWNA9")
 
-Tab:CreateButton({
-	Name = "Copy Invite",
-	Callback = function()
-   setclipboard("discord.gg/RVnjYRWNA9")
-	end,
-})
 
 
 function caganss()
@@ -163,7 +161,16 @@ Tab:CreateToggle({
 	end,
 })
 
-Tab:CreateSection("Farming 2")
+Tab:CreateSection("Pop Ups")
+
+Tab:CreateButton({
+	Name = "Hide Pop Ups",
+	Callback = function()
+client.PlayerGui.Message.Enabled = false
+client.PlayerGui.Hud.Reward.Visible = false
+	end,
+})
+Tab:CreateSection("Wins Farm")
 
 Tab:CreateToggle({
 	Name = "Auto Wins Farm",
@@ -175,7 +182,20 @@ local args = {[1] = true}game:GetService("ReplicatedStorage").Remote.Event.Game[
 		end
 	end,
 })
-
+Tab:CreateToggle({
+	Name = "Auto Win Final Boss",
+	CurrentValue = false,
+	Callback = function(Value)
+    winsf = Value
+    local args = {[1] = 5}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+    wait(1)
+    local args = {[1] = 6}game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+    local args = {[1] = workspace.World6.Boss.Pein}game:GetService("ReplicatedStorage").Remote.Event.Game["[C-S]PlayerSelectBoss"]:FireServer(unpack(args))
+            while winsf do task.wait(0.1)
+local args = {[1] = true}game:GetService("ReplicatedStorage").Remote.Event.Game["[C-S]PlayerPKEnd"]:FireServer(unpack(args))		
+		end
+	end,
+})
 Tab:CreateToggle({
 	Name = "Auto Press E (Nearest Fight)",
 	CurrentValue = false,
@@ -187,25 +207,6 @@ Tab:CreateToggle({
 	end,
 })
 
-local Ss = Tab:CreateSection("Proximityprompt")
-function autoattack()
-    local button = game:service'VirtualInputManager'
-    local X, Y = 0, 0
-    
-    button:SendMouseButtonEvent(X, Y, 0, true, game, 1)
-    button:SendMouseButtonEvent(X, Y, 0, false, game, 1)
-end
-
-    Tab:CreateButton({
-    Name = "Remove Proximityprompt Timer",
-    Callback = function()
-		for _, v in next, workspace:GetDescendants() do
-		if v:IsA("ProximityPrompt") then
-		v.HoldDuration = 0
-		end
-		end
-    end    
-})
 Tab:CreateSection("Season Pass")
 
 Tab:CreateToggle({
@@ -237,19 +238,57 @@ local args = {[1] = "Passs20"}game:GetService("ReplicatedStorage").Remote.Event.
 		end
 	end,
 })
-
-
-Tab:CreateSection("Virtual")
+Tab:CreateSection("Spin, Claim")
 Tab:CreateToggle({
-	Name = "Auto Click Virtual",
-	CurrentValue = false,
-	Callback = function(Value)
-    attacking = Value
-            while attacking do task.wait(0.2)
-    autoattack()
-		end
-	end,
+    Name = "Auto Spin",
+    CurrentValue = false,
+    Callback = function(Value)
+        ba = Value
+        while ba do
+game:GetService("ReplicatedStorage").Remote.Function.Spin["[C-S]TrySpin"]:InvokeServer()
+        end
+    end,
 })
+Tab:CreateToggle({
+    Name = "Auto Claim Daily,Weekly Boosts",
+    CurrentValue = false,
+    Callback = function(Value)
+        ba = Value
+        while ba do
+local args = {
+    [1] = "Daily"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryResetTime"]:FireServer(unpack(args))
+local args = {
+    [1] = "Weekly"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryResetTime"]:FireServer(unpack(args))
+local args = {
+    [1] = "Monthly"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryResetTime"]:FireServer(unpack(args))
+       local args = {
+    [1] = "Daily1"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryGetShopReward"]:FireServer(unpack(args))
+local args = {
+    [1] = "Weekly1"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryGetShopReward"]:FireServer(unpack(args))
+local args = {
+    [1] = "Monthly1"
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.Shop["[C-S]TryGetShopReward"]:FireServer(unpack(args))
+        end
+    end,
+})
+
 Tab:CreateSection("Rebirth")
 local delay1
 	Tab:CreateSlider({
@@ -363,27 +402,68 @@ local args = {[1] = "EquipTotal"}game:GetService("ReplicatedStorage").Remote.Eve
 		end
 	end,
 })
-Tab:CreateSection("Spin")
-Tab:CreateToggle({
-    Name = "Auto Spin",
-    CurrentValue = false,
-    Callback = function(Value)
-        ba = Value
-        while ba do
-game:GetService("ReplicatedStorage").Remote.Function.Spin["[C-S]TrySpin"]:InvokeServer()
-        end
-    end,
-})
 
-local S11 = Tab:CreateSection("UGC Left Stats")
+
+local statss = Window:CreateTab("Stats",14377123173)
+local S11 = statss:CreateSection("UGC Left Stats")
 
 local cs1 = game:GetService("Workspace").UGCBC.Left
 local cs2 = game:GetService("Workspace").UGCBC2.Left
 local cs3 = game:GetService("Workspace").UGCBC3.Left
 
-Label1 = Tab:CreateLabel(cs1.Value)
-Label2 = Tab:CreateLabel(cs2.Value)
-Label3 = Tab:CreateLabel(cs3.Value)
+Label1 = statss:CreateLabel(cs1.Value)
+Label2 = statss:CreateLabel(cs2.Value)
+Label3 = statss:CreateLabel(cs3.Value)
+
+
+    function UpdateTime()
+    Label1:Set(cs1.Value)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime()
+    end)
+    end
+    end)
+
+    function UpdateTime2()
+    Label2:Set(cs2.Value)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime2()
+    end)
+    end
+    end)
+
+    function UpdateTim3()
+    Label3:Set(cs3.Value)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime3()
+    end)
+    end
+    end)
+
+statss:CreateToggle({
+	Name = "Auto Claim UGC",
+	CurrentValue = false,
+	Callback = function(Value)
+    UGCC = Value
+            while UGCC do task.wait(0.1)
+game:GetService("ReplicatedStorage").Remote.Event.UGC["[C-S]ClaimUGC"]:FireServer()
+game:GetService("ReplicatedStorage").Remote.Event.UGC["[C-S]ClaimUGC2"]:FireServer()
+game:GetService("ReplicatedStorage").Remote.Event.UGC["[C-S]ClaimUGC3"]:FireServer()
+        end
+	end,
+})
 
 
 --[[Tab:CreateButton({
@@ -411,7 +491,7 @@ local Input = Tab:CreateInput({
 })
 ]]--
 
-local Tab2 = Window:CreateTab("Teleport",11514102342)
+local Tab2 = Window:CreateTab("Teleport",6723742952)
 Tab2:CreateSection("Machine Teleport")
 
 
@@ -448,7 +528,7 @@ game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:Fire
   end  
 })
  Tab2:CreateButton({
-  Name = "World 2 (Rainbo Machine)",
+  Name = "World 2 (Rainbow Machine)",
   Callback = function()
 local args = {
     [1] = 2
@@ -490,7 +570,27 @@ local args = {
 game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
   end  
 }) 
+Tab2:CreateButton({
+  Name = "World 6",
+  Callback = function()
+local args = {
+    [1] = 6
+}
 
+game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+  end  
+}) 
+Tab2:CreateButton({
+  Name = "World 7",
+  Callback = function()
+local args = {
+    [1] = 7
+}
+
+game:GetService("ReplicatedStorage").Remote.Event.World["[C-S]ChangeWorld"]:FireServer(unpack(args))
+  
+  end  
+}) 
 local Tab5 = Window:CreateTab("Auto Open",9194077649)
 Tab5:CreateSection("Opener")
 
@@ -519,7 +619,16 @@ game:GetService("ReplicatedStorage").Remote.Event.Events["[C-S]TryGetEventReward
 		end
 	end,
 })
-
+Tab5:CreateToggle({
+	Name = "Auto Open Item Boxes",
+	CurrentValue = false,
+	Callback = function(Value)
+    openbox = Value
+            while openbox do task.wait(0.1)
+game:GetService("ReplicatedStorage").Remote.Function.Equipment["[C-S]DoLuck"]:InvokeServer()		
+        end
+	end,
+})
 Tab5:CreateToggle({
 	Name = "Hide Egg Animation",
 	CurrentValue = false,
@@ -578,6 +687,16 @@ end
 
 
 local Universal = Window:CreateTab("Universal",10885655986)
+Universal:CreateSection("Discord")
+Universal:CreateLabel("Join My Discord")
+Universal:CreateLabel("discord.gg/RVnjYRWNA9")
+
+Universal:CreateButton({
+	Name = "Copy Invite",
+	Callback = function()
+   setclipboard("discord.gg/RVnjYRWNA9")
+	end,
+})
 Universal:CreateSection("Misc")
 
 local Button = Universal:CreateButton({
@@ -1595,18 +1714,20 @@ Universal:CreateButton({
     end
 })
 
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loaded", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
 
-local Tabss = Window:CreateTab(name2,11323675691)
+local Tabss = Window:CreateTab(name2,14887567417)
 
 local Labelaa = Tabss:CreateSection("Perfectus Hub Updates")
+local Paragraph = Tabss:CreateParagraph({Title = "Update 2", Content = "Bug Fixed, New Tabs, New Toggles"})
 
 local Paragraph = Tabss:CreateParagraph({Title = "Update 1", Content = "New Game"})
 
-while wait() do
-Label1:Set(cs1.Value)
-Label2:Set(cs2.Value)
-Label3:Set(cs3.Value)
-end
-
-
 Rayfield:LoadConfiguration()
+
+
+    
