@@ -1,146 +1,264 @@
-
 repeat wait() until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification",{
-	Title = "Perfectus Hub", -- Required 
+	Title = "Perfectus Hub", -- Required
 	Text = "Loading Hub", -- Required
 	Icon = "rbxassetid://14887567417" -- Optional
 })
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
- 
+local UserInputService = game:GetService("UserInputService")
 local workspace = game:GetService("Workspace")
 local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local localPlayer = players.LocalPlayer
+local BASE_THRESHOLD = 0.2
+local VELOCITY_SCALING_FACTOR_FAST = 0.050
+local VELOCITY_SCALING_FACTOR_SLOW = 0.1
+local UserInputService = game:GetService("UserInputService")
+local responses = {"lol what", "??", "wdym", "bru what", "mad cuz bad", "skill issue", "cry"}
+local gameEndResponses = {"ggs", "gg :3", "good game", "ggs yall", "wp", "ggs man"}
+local keywords = {"auto parry", "auto", "cheating", "hacking"}
 local heartbeatConnection
- 
+local focusedBall, displayBall = nil, nil
+local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local ballsFolder = workspace:WaitForChild("Balls")
+local parryButtonPress = replicatedStorage.Remotes.ParryButtonPress
+local abilityButtonPress = replicatedStorage.Remotes.AbilityButtonPress
+local sliderValue = 20
+local distanceVisualizer = nil
+local isRunning = false
+local notifyparried = false
+local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+local Hotbar = PlayerGui:WaitForChild("Hotbar")
+local UseRage = false
+local upgrades = localPlayer.Upgrades
+local abilitiesFolder = character:WaitForChild("Abilities")
+local uigrad1 = Hotbar.Block.border1.UIGradient
+local uigrad2 = Hotbar.Ability.border2.UIGradient
+local function isPlayerOnMobile()
+    return UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.GamepadEnabled)
+end
+local Rayfield
+if isPlayerOnMobile() then
+    Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/Hosvile/Refinement/main/MC%3AArrayfield%20Library'))()
+else
+    Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+end
+local function onCharacterAdded(newCharacter)
+    character = newCharacter
+    abilitiesFolder = character:WaitForChild("Abilities")
+end
+localPlayer.CharacterAdded:Connect(onCharacterAdded)
+local TruValue = Instance.new("StringValue")
+if workspace:FindFirstChild("AbilityThingyk1212") then
+    workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+    task.wait(0.1)
+    TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Dash" --Change to Use other ability
+    else
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Dash" --Change to Use other ability
+end
+
 local Window = Rayfield:CreateWindow({
-   Name = "Blade Ball",
-   LoadingTitle = "Perfectus Hub",
+   Name = "PerfectusMim / Blade Ball",
+   LoadingTitle = "Blade Ball",
    LoadingSubtitle = "by PerfectusMim",
    ConfigurationSaving = {
       Enabled = false,
-      FolderName = "Perfectus Scripts",
-      FileName = "Perfectus Scripts"
+      FolderName = "BladeBallerlol",
+      FileName = "Configuration"
    },
    Discord = {
-      Enabled = false,
-      Invite = "hNX8VxcjMF",
+      Enabled = true,
+      Invite = "RVnjYRWNA9",
       RememberJoins = true
    },
    KeySystem = false,
    KeySettings = {
-      Title = "Perfectus Scripts",
+      Title = "IDK",
       Subtitle = "Key System",
-      Note = "Join the discord (discord.gg/)",
-      FileName = "Perfectus",
+      Note = "nuh",
+      FileName = "??",
       SaveKey = true,
       GrabKeyFromSite = false,
       Key = "Hello"
    }
 })
- 
-local AutoParry = Window:CreateTab("Main", 13014537525)
- AutoParry:CreateSection("Farming")
-
-
-AutoParry:CreateButton({
-	Name = "Copy Discord Invite",
-	Callback = function()
-   setclipboard("discord.gg/RVnjYRWNA9")
-	end,
-})
-
-local function startAutoParry()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local replicatedStorage = game:GetService("ReplicatedStorage")
-    local runService = game:GetService("RunService")
-    local parryButtonPress = replicatedStorage.Remotes.ParryButtonPress
-    local ballsFolder = workspace:WaitForChild("Balls")
- 
-    print("Script successfully ran.")
- 
-    local function onCharacterAdded(newCharacter)
-        character = newCharacter
+local Main = Window:CreateTab("Main", 7539983773)
+local AutoParry = Window:CreateTab("Auto Parry", 13014537525)
+local Misc = Window:CreateTab("Ability", 6723742952)
+local AutoOpen = Window:CreateTab("Auto Open", 9194077649)
+local Misc2 = Window:CreateTab("Misc", 10885655986)
+local Skins = Window:CreateTab("Skins", 13014546637)
+if character then
+    print("Character found.")
+else
+    print("Character not found.")
+    return
+end
+local function notify(title, content, duration)
+    Rayfield:Notify({
+        Title = title,
+        Content = content,
+        Duration = duration or 0.7,
+        Image = 14887567417
+    })
+end
+local function getPlayerPing()
+    local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+    return ping
+end
+local function mapPingToDistance(ping)
+    local multiplier = 0.15
+    local offset = 15
+    return math.min(100, math.max(0, ping * multiplier + offset))
+end
+local function chooseNewFocusedBall()
+    local balls = ballsFolder:GetChildren()
+    for _, ball in ipairs(balls) do
+        if ball:GetAttribute("realBall") ~= nil and ball:GetAttribute("realBall") == true then
+            focusedBall = ball
+            print(focusedBall.Name)
+            break
+        elseif ball:GetAttribute("target") ~= nil then
+            focusedBall = ball
+            print(focusedBall.Name)
+            break
+        end
     end
- 
-    player.CharacterAdded:Connect(onCharacterAdded)
- 
-    local focusedBall = nil  
- 
-    local function chooseNewFocusedBall()
-        local balls = ballsFolder:GetChildren()
-        focusedBall = nil
-        for _, ball in ipairs(balls) do
-            if ball:GetAttribute("realBall") == true then
-                focusedBall = ball
-                break
+    
+    if focusedBall == nil then
+        print("Debug: Could not find a ball that's the realBall or has a target.")
+        wait(3)
+        chooseNewFocusedBall()
+    end
+    return focusedBall
+end
+local function getDynamicThreshold(ballVelocityMagnitude)
+    if ballVelocityMagnitude > 60 then
+        return math.max(0.20, BASE_THRESHOLD - (ballVelocityMagnitude * VELOCITY_SCALING_FACTOR_FAST))
+    else
+        return math.min(0.01, BASE_THRESHOLD + (ballVelocityMagnitude * VELOCITY_SCALING_FACTOR_SLOW))
+    end
+end
+local function timeUntilImpact(ballVelocity, distanceToPlayer, playerVelocity)
+    if not character then return end
+    local directionToPlayer = (character.HumanoidRootPart.Position - focusedBall.Position).Unit
+    local velocityTowardsPlayer = ballVelocity:Dot(directionToPlayer) - playerVelocity:Dot(directionToPlayer)
+    
+    if velocityTowardsPlayer <= 0 then
+        return math.huge
+    end
+    
+    return (distanceToPlayer - sliderValue) / velocityTowardsPlayer
+end
+local function updateDistanceVisualizer()
+    local charPos = character and character.PrimaryPart and character.PrimaryPart.Position
+    if charPos and focusedBall then
+        if distanceVisualizer then
+            distanceVisualizer:Destroy()
+        end
+        local timeToImpactValue = timeUntilImpact(focusedBall.Velocity, (focusedBall.Position - charPos).Magnitude, character.PrimaryPart.Velocity)
+        local ballFuturePosition = focusedBall.Position + focusedBall.Velocity * timeToImpactValue
+        distanceVisualizer = Instance.new("Part")
+        distanceVisualizer.Size = Vector3.new(1, 1, 1)
+        distanceVisualizer.Anchored = true
+        distanceVisualizer.CanCollide = false
+        distanceVisualizer.Position = ballFuturePosition
+        distanceVisualizer.Parent = workspace    
+    end
+end
+local function checkIfTarget()
+    for _, v in pairs(ballsFolder:GetChildren()) do
+        if v:IsA("Part") and v.BrickColor == BrickColor.new("Really red") then 
+            print("Ball is targetting player.")
+            return true 
+        end 
+    end 
+    return false
+end
+local function isCooldownInEffect(uigradient)
+    return uigradient.Offset.Y < 0.5
+end
+local function checkBallDistance()
+    if not character or not checkIfTarget() then return end
+    local charPos = character.PrimaryPart.Position
+    local charVel = character.PrimaryPart.Velocity
+    if focusedBall and not focusedBall.Parent then
+        print("Focused ball lost parent. Choosing a new focused ball.")
+        chooseNewFocusedBall()
+    end
+    if not focusedBall then 
+        print("No focused ball.")
+        chooseNewFocusedBall()
+    end
+    local ball = focusedBall
+    local distanceToPlayer = (ball.Position - charPos).Magnitude
+    local ballVelocityTowardsPlayer = ball.Velocity:Dot((charPos - ball.Position).Unit)
+    if ball.zoomies.VectorVelocity == nil or (ball.zoomies.VectorVelocity.x == -0 or ball.zoomies.VectorVelocity.x == 0 or ball.zoomies.VectorVelocity.y == -0 or ball.zoomies.VectorVelocity.y == 0 or ball.zoomies.VectorVelocity.z == -0 or ball.zoomies.VectorVelocity.z == 0) then
+        return 
+    end
+    if distanceToPlayer <= 15 then
+        parryButtonPress:Fire()
+        task.wait(0.5)
+    end
+    if timeUntilImpact(ball.Velocity, distanceToPlayer, charVel) < getDynamicThreshold(ballVelocityTowardsPlayer) then
+        if (character.Abilities["Raging Deflection"].Enabled or character.Abilities["Rapture"].Enabled) and UseRage == true then
+            if not isCooldownInEffect(uigrad2) then
+                abilityButtonPress:Fire()
             end
-        end
-    end
- 
-    chooseNewFocusedBall()
- 
-    local function timeUntilImpact(ballVelocity, distanceToPlayer, playerVelocity)
-        local directionToPlayer = (character.HumanoidRootPart.Position - focusedBall.Position).Unit
-        local velocityTowardsPlayer = ballVelocity:Dot(directionToPlayer) - playerVelocity:Dot(directionToPlayer)
- 
-        if velocityTowardsPlayer <= 0 then
-            return math.huge
-        end
- 
-        local distanceToBeCovered = distanceToPlayer - 40
-        return distanceToBeCovered / velocityTowardsPlayer
-    end
- 
-    local BASE_THRESHOLD = 0.15
-    local VELOCITY_SCALING_FACTOR = 0.002
- 
-    local function getDynamicThreshold(ballVelocityMagnitude)
-        local adjustedThreshold = BASE_THRESHOLD - (ballVelocityMagnitude * VELOCITY_SCALING_FACTOR)
-        return math.max(0.12, adjustedThreshold)
-    end
- 
-    local function checkBallDistance()
-        if not character:FindFirstChild("Highlight") then return end
-        local charPos = character.PrimaryPart.Position
-        local charVel = character.PrimaryPart.Velocity
- 
-        if focusedBall and not focusedBall.Parent then
-            chooseNewFocusedBall()
-        end
- 
-        if not focusedBall then return end
- 
-        local ball = focusedBall
-        local distanceToPlayer = (ball.Position - charPos).Magnitude
- 
-        if distanceToPlayer < 10 then
+            if isCooldownInEffect(uigrad2) and not isCooldownInEffect(uigrad1) then
+                parryButtonPress:Fire()
+                if notifyparried == true then
+                    notify("Auto Parry", "Manually Parried Ball (Ability on CD)", 0.3)
+                end
+            end
+        elseif not isCooldownInEffect(uigrad1) then
+            print(isCooldownInEffect(uigrad1))
             parryButtonPress:Fire()
-            return
-        end
- 
-        local timeToImpact = timeUntilImpact(ball.Velocity, distanceToPlayer, charVel)
-        local dynamicThreshold = getDynamicThreshold(ball.Velocity.Magnitude)
- 
-        if timeToImpact < dynamicThreshold then
-            parryButtonPress:Fire()
+            if notifyparried == true then
+                notify("Auto Parry", "Automatically Parried Ball", 0.3)
+            end
+            task.wait(0.5)
         end
     end
-    heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
+end
+local function autoParryCoroutine()
+    while isRunning do
+        local ping = getPlayerPing()
+        sliderValue = mapPingToDistance(ping)
+        
         checkBallDistance()
-    end)
-end
- 
-local function stopAutoParry()
-    if heartbeatConnection then
-        heartbeatConnection:Disconnect()
-        heartbeatConnection = nil
+        updateDistanceVisualizer()
+        task.wait()
     end
 end
- 
+localPlayer.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    chooseNewFocusedBall()
+    updateDistanceVisualizer()
+end)
+localPlayer.CharacterRemoving:Connect(function()
+    if distanceVisualizer then
+        distanceVisualizer:Destroy()
+        distanceVisualizer = nil
+    end
+end)
+local function startAutoParry()
+    print("Script successfully ran.")
+    
+    chooseNewFocusedBall()
+    
+    isRunning = true
+    local co = coroutine.create(autoParryCoroutine)
+    coroutine.resume(co)
+end
+local function stopAutoParry()
+    isRunning = false
+end
+local AutoParrySection = AutoParry:CreateSection("Auto Parry")
 local AutoParryToggle = AutoParry:CreateToggle({
     Name = "Auto Parry",
     CurrentValue = false,
@@ -148,1216 +266,1345 @@ local AutoParryToggle = AutoParry:CreateToggle({
     Callback = function(Value)
         if Value then
             startAutoParry()
+            notify("Auto Parry", "Auto Parry has been started", 1)
         else
             stopAutoParry()
+            notify("Auto Parry", "Auto Parry has been disabled", 1)
         end
     end,
 })
-
-   AutoParry:CreateButton({
-    Name = "Ability Gui",
-    Callback = function(Value)
-local localPlayer = game.Players.LocalPlayer
-local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local abilitiesFolder = character:WaitForChild("Abilities")
-
-local ChosenAbility = "Raging Deflection"
-
-local function createGUI()
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "AbilityChooser"
-    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 200, 0, 250)
-    frame.Position = UDim2.new(0.5, -100, 0.5, -125)
-    frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    frame.BorderSizePixel = 0
-    frame.Parent = screenGui
-
-    local isDragging = false
-    local dragInput
-    local dragStart
-    local startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    isDragging = false
-                end
-            end)
-        end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and isDragging then
-            update(input)
-        end
-    end)
-
-    local abilities = {"Dash", "Forcefield", "Invisibility", "Platform", "Raging Deflection", "Shadow Step", "Super Jump", "Telekinesis", "Thunder Dash"}
-    local buttonHeight = 20
-    for i, ability in ipairs(abilities) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, buttonHeight)
-        button.Position = UDim2.new(0, 0, 0, (i - 1) * (buttonHeight + 5))
-        button.Text = ability
-        button.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
-        button.BorderColor3 = Color3.new(1, 1, 1)
-        button.Parent = frame
-        
-        button.MouseButton1Click:Connect(function()
-            ChosenAbility = ability
-        end)
-    end
-end
-
-local function onCharacterAdded(newCharacter)
-    character = newCharacter
-    abilitiesFolder = character:WaitForChild("Abilities")
-    createGUI()
-end
-
-localPlayer.CharacterAdded:Connect(onCharacterAdded)
-createGUI()
-
-while task.wait() do
-    for _, obj in pairs(abilitiesFolder:GetChildren()) do
-        if obj:IsA("LocalScript") then
-            if obj.Name == ChosenAbility then
-                obj.Disabled = false
-            else
-                obj.Disabled = true
-            end
-        end
-    end
-end
-    end,
-})
-local function getClosestMob3()
-    local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace"):GetDescendants() do
-        if v.Name == "clash" then
-            local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
-            if mag < dist then
-                dist = mag
-                thing = v
-            end
-        end
-    end
-    if thing then
-        return thing
-    else
-        return nil
-    end
-end
-AutoParry:CreateToggle({
-    Name = "Auto Run Away From the Ball (Risk!!!)",
+local AutoRagingDeflect = AutoParry:CreateToggle({
+    Name = "Auto Rage Parry/Rapture Parry (MUST EQUIP PROPER ABILITY)",
     CurrentValue = false,
+    Flag = "AutoRagingDeflectFlag",
     Callback = function(Value)
-        bass = Value
-        while bass do
-            task.wait()
-            repeat
-                task.wait()
-            until game.Players.LocalPlayer.Character ~= nil
-            local mobass = getClosestMob3()
-            if mobass then
-                local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobass.CFrame * CFrame.new(0,0,60)})
-                tween:Play()
-            end
+        if Value then
+            startAutoParry()
+            UseRage = Value
+            notify("Auto Parry", "Auto Parry with Ability has been started", 1)
+        else
+            stopAutoParry()
+            UseRage = Value
+            notify("Auto Parry", "Auto Parry with Ability has been disabled", 1)
         end
     end,
 })
+local CloseFighting = AutoParry:CreateSection("Close Fighting")
+ local SpamParry = AutoParry:CreateKeybind({
+    Name = "Spam Parry (Hold)",
+    CurrentKeybind = "C",
+    HoldToInteract = true,
+    Flag = "ToggleParrySpam", 
+    Callback = function(Keybind)
+        parryButtonPress:Fire()
+    end,
+ })
+ 
+local Configuration = AutoParry:CreateSection("Configuration")
+local ToggleParryOn = AutoParry:CreateKeybind({
+   Name = "Toggle Parry On (Bind)",
+   CurrentKeybind = "One",
+   HoldToInteract = false,
+   Flag = "ToggleParryOn", 
+   Callback = function(Keybind)
+AutoParryToggle:Set(true)
+   end
+})
+local ToggleParryOff = AutoParry:CreateKeybind({
+   Name = "Toggle Parry Off (Bind)",
+   CurrentKeybind = "Two",
+   HoldToInteract = false,
+   Flag = "ToggleParryOff",
+   Callback = function(Keybind)
+   AutoParryToggle:Set(false)
+   end,
+})
+local AutoGGToggle = AutoParry:CreateToggle({
+    Name = "Auto GG",
+    CurrentValue = false,
+    Flag = "AutoGGFlage",
+    Callback = function(Value)
+        return
+    end
+})
+local AutoResponseToggle = AutoParry:CreateToggle({
+    Name = "Auto Response",
+    CurrentValue = false,
+    Flag = "AutoResponseFlage",
+    Callback = function(Value)
+        return
+    end
+})
+local notifyparriedthing = AutoParry:CreateButton({
+    Name = "Enable/Disable Notify when parried",
+    Callback = function()
+        if not notifyparried == true then
+            notifyparried = true
+            notify("Auto Parry", "Auto Parry Notify when parried has been enabled", 0.7)
+        else
+            notifyparried = false
+            notify("Auto Parry", "Auto Parry Notify when parried has been disabled", 0.7)
+        end
+    end,
+ })
+workspace:FindFirstChild("Alive").ChildRemoved:Connect(function()
+    if #(workspace.Alive:GetChildren()) <= 1 and AutoGGToggle.CurrentValue and not ggdebounce then
+        ggdebounce = true
+        local randomResponse = math.random(1, #gameEndResponses)
+        wait(math.random(2,3.5))
+        replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(gameEndResponses[randomResponse],"All")
+        task.wait(math.random(1.5,3.3))
+        ggdebounce = false
+    end
+end)
+players.PlayerChatted:Connect(function(PlayerChatType,Player,Message)
+    for _,v in pairs(keywords) do
+        if (string.find(Message, v)) and Player ~= localPlayer and AutoResponseToggle.CurrentValue and not responsedebounce then
+            responsedebounce = true
+            local choice = math.random(1, #responses)
+            replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(responses[choice],"All")
+            task.wait(2,5)
+            responsedebounce = false
+        end
+    end
+end)
+local Discord = Main:CreateSection("Discord")
+local Descrip = Main:CreateButton({
+   Name = "Discord invite (discord.gg/RVnjYRWNA9)",
+   Callback = function()
+    setclipboard("discord.gg/RVnjYRWNA9")
+    Rayfield:Notify({
+   Title = "Credits",
+   Content = "Copied Invite",
+   Duration = 60,
+   Image = 14887567417,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+})
+end
+})
+local Abilities = Main:CreateSection("Abilities")
+local AliveFolder = Main:CreateButton({
+   Name = "Allow Use abilities/parry in lobby",
+   Callback = function()
+    character.Parent = workspace.Alive
+end
+})
+local DeadFolder = Main:CreateButton({
+    Name = "Reverse effect of allow use abilities in lobby",
+    Callback = function()
+     character.Parent = workspace.Dead
+ end
+ })
+local Descrip = Main:CreateButton({
+Name = "How To Use",
+   Callback = function()
+    Rayfield:Notify({
+   Title = "How Its Working",
+   Content = "You can now equip abilities in round (Must own them)",
+   Duration = 10,
+   Image = 14887567417,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+})
+end
+})
+local Dash = Main:CreateButton({
+   Name = "Dash",
+   Callback = function()
+local args = {
+    [1] = "Dash"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+    local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Dash" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local Forcefield = Main:CreateButton({
+   Name = "Forcefield",
+   Callback = function()
+local args = {
+    [1] = "Forcefield"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Forcefield" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local Invisibility = Main:CreateButton({
+    Name = "Invisibility",
+    Callback = function()
+ 
+ local args = {
+     [1] = "Invisibility"
+ }
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+ 
+ game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+             
+ local function AbilityValue2()
+ local TruValue = Instance.new("StringValue")
+ workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+         TruValue.Parent = game:GetService("Workspace")
+         TruValue.Name = "AbilityThingyk1212"
+         TruValue.Value = "Invisibility" --Change to Use other ability
+ end
+ 
+ for i,v in pairs(abilitiesFolder:GetChildren()) do
+ 
+ 
+ for i,b in pairs(abilitiesFolder:GetChildren()) do
+     local Ability = b
+     
+     if v.Enabled == true then
+         local EquippedAbility = v
+         local ChosenAbility = {}
+         spawn(function()
+         ChosenAbility = AbilityValue2()
+     end)
+ 
+     task.wait(0.05)
+         local AbilityValue = workspace.AbilityThingyk1212
+         if b.Name == AbilityValue.Value then
+ 
+             v.Enabled = false
+             b.Enabled = true
+     end
+ end
+ end
+ end
+    end,
+ })
+ local PhaseBypass = Main:CreateButton({
+    Name = "Phase Bypass",
+    Callback = function()
+ 
+ local args = {
+     [1] = "Phase Bypass"
+ }
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+ 
+ game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+             
+ local function AbilityValue2()
+ local TruValue = Instance.new("StringValue")
+ workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+         TruValue.Parent = game:GetService("Workspace")
+         TruValue.Name = "AbilityThingyk1212"
+         TruValue.Value = "Phase Bypass" --Change to Use other ability
+ end
+ 
+ for i,v in pairs(abilitiesFolder:GetChildren()) do
+ 
+ 
+ for i,b in pairs(abilitiesFolder:GetChildren()) do
+     local Ability = b
+     
+     if v.Enabled == true then
+         local EquippedAbility = v
+         local ChosenAbility = {}
+         spawn(function()
+         ChosenAbility = AbilityValue2()
+     end)
+ 
+     task.wait(0.05)
+         local AbilityValue = workspace.AbilityThingyk1212
+         if b.Name == AbilityValue.Value then
+ 
+             v.Enabled = false
+             b.Enabled = true
+     end
+ end
+ end
+ end
+    end,
+ })
+ 
+local Platform = Main:CreateButton({
+   Name = "Platform",
+   Callback = function()
+local args = {
+    [1] = "Platform"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Platform" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local Pull = Main:CreateButton({
+    Name = "Pull",
+    Callback = function()
+ 
+ local args = {
+     [1] = "Pull"
+ }
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+ 
+ game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+             
+ local function AbilityValue2()
+ local TruValue = Instance.new("StringValue")
+ workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+         TruValue.Parent = game:GetService("Workspace")
+         TruValue.Name = "AbilityThingyk1212"
+         TruValue.Value = "Pull" --Change to Use other ability
+ end
+ 
+ for i,v in pairs(abilitiesFolder:GetChildren()) do
+ 
+ 
+ for i,b in pairs(abilitiesFolder:GetChildren()) do
+     local Ability = b
+     
+     if v.Enabled == true then
+         local EquippedAbility = v
+         local ChosenAbility = {}
+         spawn(function()
+         ChosenAbility = AbilityValue2()
+     end)
+ 
+     task.wait(0.05)
+         local AbilityValue = workspace.AbilityThingyk1212
+         if b.Name == AbilityValue.Value then
+ 
+             v.Enabled = false
+             b.Enabled = true
+     end
+ end
+ end
+ end
+    end,
+ })
+local RagingDeflection = Main:CreateButton({
+   Name = "Raging Deflection",
+   Callback = function()
+local args = {
+    [1] = "Raging Deflection"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Raging Deflection" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local ShadowStep = Main:CreateButton({
+   Name = "Shadow Step",
+   Callback = function()
+local args = {
+    [1] = "Shadow Step"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Shadow Step" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local SuperJump = Main:CreateButton({
+   Name = "Super Jump",
+   Callback = function()
+local args = {
+    [1] = "Super Jump"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Super Jump" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local Telekinesis = Main:CreateButton({
+   Name = "Telekinesis",
+   Callback = function()
+local args = {
+    [1] = "Telekinesis"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Telekinesis" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local ThunderDash = Main:CreateButton({
+   Name = "Thunder Dash",
+   Callback = function()
+local args = {
+    [1] = "Thunder Dash"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Thunder Dash" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local Rapture = Main:CreateButton({
+   Name = "Rapture",
+   Callback = function()
+local args = {
+    [1] = "Rapture"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+            
+local function AbilityValue2()
+local TruValue = Instance.new("StringValue")
+workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+        TruValue.Parent = game:GetService("Workspace")
+        TruValue.Name = "AbilityThingyk1212"
+        TruValue.Value = "Rapture" --Change to Use other ability
+end
+for i,v in pairs(abilitiesFolder:GetChildren()) do
+for i,b in pairs(abilitiesFolder:GetChildren()) do
+    local Ability = b
+    
+    if v.Enabled == true then
+        local EquippedAbility = v
+        local ChosenAbility = {}
+        spawn(function()
+        ChosenAbility = AbilityValue2()
+    end)
+    task.wait(0.05)
+        local AbilityValue = workspace.AbilityThingyk1212
+        if b.Name == AbilityValue.Value then
+            v.Enabled = false
+            b.Enabled = true
+    end
+end
+end
+end
+   end,
+})
+local WindCloak = Main:CreateButton({
+    Name = "Wind Cloak",
+    Callback = function()
+ 
+ local args = {
+     [1] = "Wind Cloak"
+ }
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+ 
+ game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+ 
+ game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+             
+ local function AbilityValue2()
+ local TruValue = Instance.new("StringValue")
+ workspace:FindFirstChild("AbilityThingyk1212"):Remove()
+         TruValue.Parent = game:GetService("Workspace")
+         TruValue.Name = "AbilityThingyk1212"
+         TruValue.Value = "Wind Cloak" --Change to Use other ability
+ end
+ 
+ for i,v in pairs(abilitiesFolder:GetChildren()) do
+ 
+ 
+ for i,b in pairs(abilitiesFolder:GetChildren()) do
+     local Ability = b
+     
+     if v.Enabled == true then
+         local EquippedAbility = v
+         local ChosenAbility = {}
+         spawn(function()
+         ChosenAbility = AbilityValue2()
+     end)
+ 
+     task.wait(0.05)
+         local AbilityValue = workspace.AbilityThingyk1212
+         if b.Name == AbilityValue.Value then
+ 
+             v.Enabled = false
+             b.Enabled = true
+     end
+ end
+ end
+ end
+    end,
+ })
 
-AutoParry:CreateSection("Box")
+AutoOpen:CreateSection("Auto Open")
 
-    AutoParry:CreateToggle({
+local CoreGui = game:GetService("StarterGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local webhookthing = "bruh"
+local Input = AutoOpen:CreateInput({
+    Name = "Put Webhook (to see what you get)",
+    PlaceholderText = "YourWebhook",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        webhookthing = Text
+    end,
+ })
+function sendNotif(explosion)
+    CoreGui:SetCore("SendNotification", {
+        Title = "Auto Explosion Crate";
+        Text = explosion;
+        Duration = 3;
+        Icon = "rbxassetid://14887567417";
+    })
+end
+function getExplosion()
+    local _, explosion = ReplicatedStorage.Remotes.Store.RequestOpenExplosionBox:InvokeServer()
+    return explosion
+end
+local OpenExplosionCrate = AutoOpen:CreateButton({
+   Name = "Open Explosion Crate",
+   Callback = function()
+  local WebHook     = webhookthing -- your WebHook goes here
+  local HTTPService = game:GetService("HttpService")
+  request({
+                     Url = WebHook,
+                     Method = "POST",
+                     Headers = {
+                         ["Content-Type"] = "application/json"
+                     },
+                     Body = game.HttpService:JSONEncode({
+                         content = getExplosion()
+                    })
+                 })
+end,
+})
+function sendNotif(sword)
+    CoreGui:SetCore("SendNotification", {
+        Title = "Auto Weapon Crate";
+        Text = sword;
+        Duration = 3;
+        Icon = "rbxassetid://14887567417";
+    })
+end
+function getSword()
+    local _, sword = ReplicatedStorage.Remotes.Store.RequestOpenSwordBox:InvokeServer()
+    return sword
+end
+local OpenWeaponCrate = AutoOpen:CreateButton({
+   Name = "Open Weapon Crate",
+   Callback = function()
+            task.wait(0.5)
+    local WebHook     = webhookthing -- your WebHook goes here
+    local HTTPService = game:GetService("HttpService")
+    request({
+                       Url = WebHook,
+                       Method = "POST",
+                       Headers = {
+                           ["Content-Type"] = "application/json"
+                       },
+                       Body = game.HttpService:JSONEncode({
+                           content = getSword()
+                      })
+                   })
+end,
+})
+local OpenExplosionCrateToggle = AutoOpen:CreateToggle({
     Name = "Auto Open Explosion Crate",
     CurrentValue = false,
-    Flag = "exp",
+    Flag = "ExplosionCrate",
     Callback = function(Value)
-    exp = Value
-    while exp do wait(0.1)
- game:GetService("ReplicatedStorage").Remotes.Store.RequestOpenExplosionBox:InvokeServer()
-        end
+            task.wait(0.5)
+        OpenExplosionCrate = Value
+        while true do wait()
+            if OpenExplosionCrate then
+                    task.wait(1)
+                local WebHook     = webhookthing -- your WebHook goes here
+                local HTTPService = game:GetService("HttpService")
+                request({
+                                   Url = WebHook,
+                                   Method = "POST",
+                                   Headers = {
+                                       ["Content-Type"] = "application/json"
+                                   },
+                                   Body = game.HttpService:JSONEncode({
+                                       content = getExplosion()
+                                  })
+                               })
+            end
+    end
     end,
 })
-    AutoParry:CreateToggle({
-    Name = "Auto Open Sword Crate",
+local OpenWeaponCrateToggle = AutoOpen:CreateToggle({
+    Name = "Auto Open Weapon Cratee",
     CurrentValue = false,
-    Flag = "exp",
+    Flag = "OpenWeaponCrate",
     Callback = function(Value)
-    exp = Value
-    while exp do wait(0.1)
- game:GetService("ReplicatedStorage").Remotes.Store.RequestOpenSwordBox:InvokeServer()
-
-        end
+        OpenSwordCrate = Value
+        while true do wait()
+            if OpenSwordCrate then
+                    task.wait(1)
+                local WebHook     = webhookthing -- your WebHook goes here
+                local HTTPService = game:GetService("HttpService")
+                request({
+                                   Url = WebHook,
+                                   Method = "POST",
+                                   Headers = {
+                                       ["Content-Type"] = "application/json"
+                                   },
+                                   Body = game.HttpService:JSONEncode({
+                                       content = getSword()
+                                  })
+                               })
+            end
+    end
     end,
 })
-
-
-local Universal = Window:CreateTab("Universal", 10885655986)
-Universal:CreateSection("Start Admin")
-
-local Button = Universal:CreateButton({
-   Name = "Admin",
+local Positive = Misc:CreateSection("Positive")
+local InfDash = Misc:CreateButton({
+   Name = "Inf Dash",
    Callback = function()
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/PerfectusMim/dbevo/main/admin"))()
-   end,
-})
-Universal:CreateSection("Tool")
-
-local Button = Universal:CreateButton({
-   Name = "Remote Spy",
-   Callback = function()
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/gizlidostumbenim/library/main/remote-spy"))()
-   end,
-})
-local Button = Universal:CreateButton({
-   Name = "Dark Dex V3",
-   Callback = function()
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua"))()
-   end,
-})
-Universal:CreateSection("Misc")
-
-local Button = Universal:CreateButton({
-   Name = "Rejoin",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/mM7JBG5h"))()
-   end,
-})
-
-local Button = Universal:CreateButton({
-   Name = "Reset Character",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/EEY6SATj"))()
-   end,	
-})
-   
-local Button = Universal:CreateButton({
-   Name = "Kick Your Self",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/EEY6SATj"))()
-   end,	
-})   
-   
-   
-   		Universal:CreateSection("Local")
-
-
-		local WalkSpeed = 0
-		local JumpPower = 0
-
-	Universal:CreateSlider({
-		Name = "Walk Speed",
-		Range = {
-			0,
-			1000
-		},
-		Increment = 1,
-		Suffix = "Walkspeed",
-		CurrentValue = 25,
-		Flag = "Walk Speed",
-		Callback = function(x)
-			WalkSpeed = x
-			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = x
-		end
-	})
-
-
-	Universal:CreateSlider({
-		Name = "Jump Power",
-		Range = {
-			0,
-			1000
-		},
-		Increment = 1,
-		Suffix = "Jump Power",
-		CurrentValue = 50,
-		Flag = "Jump Power",
-		Callback = function(x)
-			JumpPower = x
-			game.Players.LocalPlayer.Character.Humanoid.JumpPower = x
-		end
-	})
-
-Universal:CreateToggle({
-    Name = "Loop Walk Speed",
-    CurrentValue = false,
-    Flag = "Loop Walk Speed",
-    Callback = function(x)
-        getgenv().LoopWalkspeed = x
-    end
-})
-
-Universal:CreateToggle({
-    Name = "Loop Jump Power",
-    CurrentValue = false,
-    Flag = "Loop Jump Power",
-    Callback = function(x)
-        getgenv().LoopJumpPower = x
-    end
-})
-Universal:CreateSection("Player") 
-Universal:CreateToggle({
-    Name = "Infinite Jump",
-    CurrentValue = false,
-    Flag = "Infinite Jump",
-    Callback = function(x)
-        getgenv().InfiniteJump = x
-    end
-})
-
-
-local Noclip = nil
-local Clip = nil
-
-function noclip()
-	Clip = false
-	local function Nocl()
-		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
-			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
-					v.CanCollide = false
-				end
-			end
-		end
-		wait(0.21) -- basic optimization
-	end
-	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+   upgrades:WaitForChild("Dash").Value = 999999999999999999
 end
-
-function clip()
-	if Noclip then Noclip:Disconnect() end
-	Clip = true
+})
+local infForcefield2 = Misc:CreateButton({
+   Name = "Forcefield",
+   Callback = function()
+   upgrades:WaitForChild("Forcefield").Value = 999999999999999999
 end
-
-
-
-
-Toggle = Universal:CreateToggle({
-	Name = "Noclip",
-	CurrentValue = false,
-	Callback = function(Value)
-		if Value then
-			noclip()
-		else
-			clip()
-		end
-	end,
 })
-
-
-		Universal:CreateSection("Safety")
-
-		local GroupId = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Creator.CreatorTargetId
-
-		Universal:CreateToggle({
-			Name = "Leave Upon Staff Join",
-			Info = "Kicks you if a player above the group role 1 joins/is in the server",
-			CurrentValue = false,
-			Flag = "Universal-AutoLeave",
-			Callback = function(Value)
-				if Value then
-					for i,v in pairs(game.Players:GetPlayers()) do
-						pcall(function()
-							if v:IsInGroup(GroupId) and v:GetRankInGroup(GroupId) > 1 then
-								AutoRejoin:Set(false)
-								Player:Kick("Detected Staff (Player above group role 1)")
-							end
-						end)
-					end
-				end
-			end,
-		})
-
-		game:GetService("Players").PlayerAdded:Connect(function(v)
-			if Rayfield.Flags["Universal-AutoLeave"].CurrentValue then
-				pcall(function()
-					if v:IsInGroup(GroupId) and v:GetRankInGroup(GroupId) > 1 then
-						AutoRejoin:Set(false)
-						Player:Kick("Detected Staff (Player above group role 1)")
-					end
-				end)
-			end
-		end)
-
-		Universal:CreateSection("Grinding")
-		
-		Universal:CreateButton({
-			Name = "One-Time Server Hop",
-			Callback = function()
-				local Http = game:GetService("HttpService")
-				local TPS = game:GetService("TeleportService")
-				local Api = "https://games.roblox.com/v1/games/"
-
-				local _place,_id = game.PlaceId, game.JobId
-				local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100"
-
-				local function ListServers(cursor)
-					local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-					return Http:JSONDecode(Raw)
-				end
-
-				local Next; repeat
-					local Servers = ListServers(Next)
-					for i,v in next, Servers.data do
-						if v.playing < v.maxPlayers and v.id ~= _id then
-							local s,r = pcall(TPS.TeleportToPlaceInstance,TPS,_place,v.id,Player)
-							if s then break end
-						end
-					end
-
-					Next = Servers.nextPageCursor
-				until not Next
-			end,
-		})
-		
-		Universal:CreateToggle({
-			Name = "Server Hop",
-			Info = "Automatically server hops after the interval",
-			CurrentValue = false,
-			Flag = "Universal-ServerHop",
-			Callback = function(Value)	end,
-		})
-		
-		Universal:CreateSlider({
-			Name = "Server Hop Intervals",
-			Info = "Sets the interval in seconds for the Server Hop",
-			Range = {5, 600},
-			Increment = 1,
-			CurrentValue = 5,
-			Flag = "Universal-ServerhopIntervals",
-			Callback = function(Value)	end,
-		})
-		
-		task.spawn(function()
-			while task.wait(Rayfield.Flags["Universal-ServerhopIntervals"].CurrentValue) do
-				if Rayfield.Flags["Universal-ServerHop"].CurrentValue then
-					local Http = game:GetService("HttpService")
-					local TPS = game:GetService("TeleportService")
-					local Api = "https://games.roblox.com/v1/games/"
-
-					local _place,_id = game.PlaceId, game.JobId
-					local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100"
-					
-					local function ListServers(cursor)
-						local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-						return Http:JSONDecode(Raw)
-					end
-
-					local Next; repeat
-						local Servers = ListServers(Next)
-						for i,v in next, Servers.data do
-							if v.playing < v.maxPlayers and v.id ~= _id then
-								local s,r = pcall(TPS.TeleportToPlaceInstance,TPS,_place,v.id,Player)
-								if s then break end
-							end
-						end
-
-						Next = Servers.nextPageCursor
-					until not Next
-				end
-			end
-		end)
-
-
-local Speed=50;
-local UIS=game:GetService("UserInputService")local OnRender=game:GetService("RunService").RenderStepped;local Player=game:GetService("Players").LocalPlayer;local Character=Player.Character or Player.CharacterAdded:Wait()local Camera=workspace.CurrentCamera;local Root=Character:WaitForChild("HumanoidRootPart")local C1,C2,C3;local Nav={Flying=false,Forward=false,Backward=false,Left=false,Right=false}C1=UIS.InputBegan:Connect(function(Input)if getgenv()["Fly | E"] then if Input.UserInputType==Enum.UserInputType.Keyboard then if Input.KeyCode==Enum.KeyCode.E then Nav.Flying=not Nav.Flying;Root.Anchored=Nav.Flying elseif Input.KeyCode==Enum.KeyCode.W then Nav.Forward=true elseif Input.KeyCode==Enum.KeyCode.S then Nav.Backward=true elseif Input.KeyCode==Enum.KeyCode.A then Nav.Left=true elseif Input.KeyCode==Enum.KeyCode.D then Nav.Right=true end end end end)C2=UIS.InputEnded:Connect(function(Input)if Input.UserInputType==Enum.UserInputType.Keyboard then if Input.KeyCode==Enum.KeyCode.W then Nav.Forward=false elseif Input.KeyCode==Enum.KeyCode.S then Nav.Backward=false elseif Input.KeyCode==Enum.KeyCode.A then Nav.Left=false elseif Input.KeyCode==Enum.KeyCode.D then Nav.Right=false end end end)C3=Camera:GetPropertyChangedSignal("CFrame"):Connect(function()if Nav.Flying then Root.CFrame=CFrame.new(Root.CFrame.Position,Root.CFrame.Position+Camera.CFrame.LookVector)end end)task.spawn(function()while true do local Delta=OnRender:Wait()if Nav.Flying then if Nav.Forward then Root.CFrame=Root.CFrame+(Camera.CFrame.LookVector*(Delta*Speed))end;if Nav.Backward then Root.CFrame=Root.CFrame+(-Camera.CFrame.LookVector*(Delta*Speed))end;if Nav.Left then Root.CFrame=Root.CFrame+(-Camera.CFrame.RightVector*(Delta*Speed))end;if Nav.Right then Root.CFrame=Root.CFrame+(Camera.CFrame.RightVector*(Delta*Speed))end end end end)
-Universal:CreateSection("Fly") 
-Universal:CreateToggle({
-    Name = "Fly | E",
-    CurrentValue = false,
-    Flag = "Fly | E",
-    Callback = function(x)
-        getgenv()["Fly | E"] = x
-        if x == false then
-            for i,v in next, Nav do
-                v = false
-            end
-            Root.Anchored = false
-        end
-    end
+local infInvisibility2 = Misc:CreateButton({
+   Name = "Invisibility",
+   Callback = function()
+   upgrades:WaitForChild("Invisibility").Value = 999999999999999999
+end
 })
-
-Universal:CreateSlider({
-    Name = "Fly Speed",
-    Range = {0, 1000},
-    Increment = 1,
-    Suffix = "Fly Speed",
-    CurrentValue = 25,
-    Flag = "Fly Speed",
-    Callback = function(x)
-        Speed = x
-    end,
+local PhaseBypass = Misc:CreateButton({
+    Name = "Phase Bypass",
+    Callback = function()
+    upgrades:WaitForChild("Phase Bypass").Value = 999999999999999999
+ end
+ })
+local Platform = Misc:CreateButton({
+   Name = "Platform",
+   Callback = function()
+   upgrades:WaitForChild("Platform").Value = 999999999999999999
+end
 })
-
-game:GetService("UserInputService").InputBegan:Connect(function(x)
-    if not getgenv().InfiniteJump then return end
-    if x.KeyCode == Enum.KeyCode.Space then
-        game.Players.LocalPlayer.Character.Humanoid:ChangeState(3)
-    end
-end)
-
-game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-    if not getgenv().LoopWalkspeed then return end
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
-end)
-
-game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-    if not getgenv().LoopJumpPower then return end
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = JumpPower
-end)
-
-Universal:CreateSection("Fake")   
-local pingfaker = 0
-
-local Button = Universal:CreateButton({
-   Name = "0 Ping Visual",
-   Callback = function(bool)
-        _G.pingvis = bool
-        game:GetService("RunService").Heartbeat:Connect(function()
-            if _G.pingvis == true then
-                game:GetService("ReplicatedStorage").Events.UpdatePing:FireServer(0)
-        end
-      end)
-   end,
+local Pull = Misc:CreateButton({
+    Name = "Pull",
+    Callback = function()
+    upgrades:WaitForChild("Pull").Value = 999999999999999999
+ end
+ })
+local InfShadowStep = Misc:CreateButton({
+   Name = "Inf Shadow Step",
+   Callback = function()
+   upgrades:WaitForChild("Shadow Step").Value = 999999999999999999
+end
 })
-
-Universal:CreateSection("Anti")
-		Universal:CreateToggle({
-			Name = "Anti-AFK",
-			CurrentValue = false,
-			Flag = "Universal-AntiAFK",
-			Callback = function(Value)
-				if Value then
-					local VirtualUser = game:GetService("VirtualUser")
-					Player.Idled:Connect(function()
-						VirtualUser:CaptureController()
-						VirtualUser:ClickButton2(Vector2.new())
-					end)
-				end
-			end,
-		})
-		
-		
-		local players = game:GetService("Players"):GetPlayers()
-		Universal:CreateToggle({
-			Name = "Anti-Kick",
-			CurrentValue = false,
-			Flag = "Universal-Anti",
-			Callback = function(Value)
-        _G.antikickes = Value;
-        while _G.antikickes == true do
-            if #players > 1 then
-                local randomPlayer
-                repeat
-                    randomPlayer = players[math.random(#players)]
-                until randomPlayer ~= LocalPlayer
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-
-            end
-            task.wait(0)
-            end
-			end,
-		})
-		
-		Universal:CreateSection("Game")
-		Universal:CreateToggle({
-			Name = "Auto Rejoin",
-			CurrentValue = false,
-			Flag = "Universal-AutoRejoin",
-			Callback = function(Value)
-				if Value then
-					repeat task.wait() until game.CoreGui:FindFirstChild('RobloxPromptGui')
-
-					local lp,po,ts = game:GetService('Players').LocalPlayer,game.CoreGui.RobloxPromptGui.promptOverlay,game:GetService('TeleportService')
-
-					po.ChildAdded:connect(function(a)
-						if a.Name == 'ErrorPrompt' then
-							while true do
-								ts:Teleport(game.PlaceId)
-								task.wait(2)
-							end
-						end
-					end)
-				end
-			end,
-		})
-
-		Universal:CreateToggle({
-			Name = "Auto Re-Execute",
-			CurrentValue = false,
-			Flag = "Universal-AutoRe-Execute",
-			Callback = function(Value)
-				if Value then
-					local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-
-					if queueteleport then
-						queueteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/vabalata1/L-HUB/main/L-HUB"))()')
-					end
-				end
-			end,
-		})
-		
-		Universal:CreateSection("Animation")
-			Universal:CreateToggle({
-			Name = "Remove Anims1 (V1)",
-			CurrentValue = false,
-			Flag = "Universal",
-			Callback = function(bool)
-     _G.Anims1 = bool
-
-    while _G.Anims1 == true do
-        local localPlayer = game.Players.LocalPlayer
-        if localPlayer then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            for _, descendant in ipairs(workspace:GetDescendants()) do
-                if descendant:IsDescendantOf(character) and descendant.Name == "Animate" then
-                    descendant:Destroy()
-                end
-            end
-            task.wait(5)
-        end
-    end
-			end,
-		})
-			Universal:CreateToggle({
-			Name = "Remove Anims2 (Blatant + Buggy)",
-			CurrentValue = false,
-			Flag = "Universal--Execute",
-			Callback = function(bool)
-    _G.Anims2 = bool
-
-    while _G.Anims2 == true do
-        local localPlayer = game.Players.LocalPlayer
-        if localPlayer then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            for _, descendant in ipairs(workspace:GetDescendants()) do
-                if descendant:IsDescendantOf(character) and descendant.Name == "Humanoid" and
-                    descendant:FindFirstChild("Animator") then
-                    descendant.Animator:Destroy()
-                end
-            end
-            task.wait(5)
-        end
-    end
-			end,
-		})	
-		
-    local animspeed = 1
-	Universal:CreateSlider({
-		Name = "Animation Speed",
-		Range = {
-			0,
-			300
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 0,
-		Flag = "",
-		Callback = function(value)
-		animspeed = value
-		end
-	})
+local InfSuperJump = Misc:CreateButton({
+   Name = "Inf Super Jump",
+   Callback = function()
+   upgrades:WaitForChild("Super Jump").Value = 999999999999999999
+end
+})
+local InfThunderDash = Misc:CreateButton({
+   Name = "Inf Uses and Range Thunder Dash",
+   Callback = function()
+   upgrades:WaitForChild("Thunder Dash").Value = 999999999999999999
+end
+})
+local RageDeflecter = Misc:CreateButton({
+   Name = "Not Inf Raging Deflection",
+   Callback = function()
+   upgrades:WaitForChild("Raging Deflection").Value = 999999999999999999
+end
+})
+local StrongerTelekines = Misc:CreateButton({
+   Name = "Stronger Telekinesis",
+   Callback = function()
+   upgrades:WaitForChild("Telekinesis").Value = 999999999999999999
+end
+})
+local IwantRapturedam = Misc:CreateButton({
+   Name = "Rapture lvl",
+   Callback = function()
+   upgrades:WaitForChild("Rapture").Value = 999999999999999999
+end
+})
+local WindCloak = Misc:CreateButton({
+    Name = "Wind Cloak",
+    Callback = function()
+    upgrades:WaitForChild("Wind Cloak").Value = 999999999999999999
+ end
+ })
+local Resetlvl = Misc:CreateSection("Reset Lvl")
+local InfDash = Misc:CreateButton({
+   Name = "Dash",
+   Callback = function()
+   upgrades:WaitForChild("Dash").Value = 3
+end
+})
+local infForcefield2 = Misc:CreateButton({
+   Name = "Forcefield",
+   Callback = function()
+   upgrades:WaitForChild("Forcefield").Value = 3
+end
+})
+local infInvisibility2 = Misc:CreateButton({
+   Name = "Invisibility",
+   Callback = function()
+   upgrades:WaitForChild("Invisibility").Value = 3
+end
+})
+local Platform = Misc:CreateButton({
+   Name = "Platform",
+   Callback = function()
+   upgrades:WaitForChild("Platform").Value = 3
+end
+})
+local InfShadowStep = Misc:CreateButton({
+   Name = "Shadow Step",
+   Callback = function()
+   upgrades:WaitForChild("Shadow Step").Value = 3
+end
+})
+local InfSuperJump = Misc:CreateButton({
+   Name = "Super Jump",
+   Callback = function()
+   upgrades:WaitForChild("Super Jump").Value = 3
+end
+})
+local InfThunderDash2 = Misc:CreateButton({
+   Name = "Thunder Dash",
+   Callback = function()
+   upgrades:WaitForChild("Thunder Dash").Value = 3
+end
+})
+local RageDeflecter2 = Misc:CreateButton({
+   Name = "Raging Deflection",
+   Callback = function()
+   upgrades:WaitForChild("Raging Deflection").Value = 3
+end
+})
+local WeakerTeleknises = Misc:CreateButton({
+   Name = "Telekinesis",
+   Callback = function()
+   upgrades:WaitForChild("Telekinesis").Value = 3
+end
+})
+local dafukinrapture = Misc:CreateButton({
+   Name = "Rapture",
+   Callback = function()
+   upgrades:WaitForChild("Rapture").Value = 3
+end
+})
+local emotes = Misc2:CreateSection("Emotes")
+local EmoteEffect = Misc2:CreateButton({
+   Name = "Gamepass Emote Effect + Music (everyone sees), Credit to idk who",
+   Callback = function()
+   local args = {[1] = true,[2] = "Empyrean"}game:GetService("ReplicatedStorage").Remotes.CustomEmote:FireServer(unpack(args))
+end
+})
+local ActualEmote = Misc2:CreateButton({
+   Name = "Gamepass Emote (Press R, after pressing button), Everyone sees",
+   Callback = function()
+   character:FindFirstChildOfClass("Model").Name = "Empyrean Greatblade"
+end
+})
+local Funnythingslol = Misc2:CreateSection("Funny Thing")
+local EquipTelekinesis = Misc2:CreateButton({
+   Name = "Equip Telekinesis",
+   Callback = function()
+local args = {
+    [1] = "Telekinesis"
+}
+game:GetService("ReplicatedStorage").Remotes.Store.RequestEquipAbility:InvokeServer(unpack(args))
+game:GetService("ReplicatedStorage").Remotes.Store.GetOwnedAbilities:InvokeServer()
+game:GetService("ReplicatedStorage").Remotes.kebaind:FireServer()
+end
+})
+local BreakBall = Misc2:CreateButton({
+   Name = "Break Ball (You need telekinesis owned)",
+   Callback = function()
     
-    local animspeedup = 1
-    	Universal:CreateSlider({
-		Name = "Animation Update Speed",
-		Range = {
-			0,
-			15
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 0,
-		Flag = "",
-		Callback = function(value)
-		animspeedup = value
-		end
-	})
-	
-	
-		    Universal:CreateToggle({
-			Name = "Enable Animation Speed",
-			CurrentValue = false,
-			Flag = "Universal-AutoRe-Exeacute",
-			Callback = function(bool)
-     _G.AutoAnimsSpeed = bool
-    while task.wait(animspeedup) and _G.AutoAnimsSpeed == true 
-    do
-       if game:GetService("Players").LocalPlayer.Character and
-       game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid") then
-   Char = game:GetService("Players").LocalPlayer.Character
-   Hum = Char:FindFirstChildOfClass("Humanoid") or Char:FindFirstChildOfClass("AnimationController")
-   for i, v in next, Hum:GetPlayingAnimationTracks() do
-       v:AdjustSpeed(animspeed)
-   end
+   game:GetService("ReplicatedStorage").Remotes.Telekinesis:FireServer()
 end
-end
-			end,
-		})	
-		
-		Universal:CreateSection("Animation 2 (Working)")
-Universal:CreateButton({
-	Name = "Cartony",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=742637544"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=742638445"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=742640026"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=742638842"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=742637942"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=742636889"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=742637151"
-    end
 })
-
-Universal:CreateButton({
-	Name = "Vampire",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=1083445855"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=1083450166"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=1083473930"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=1083462077"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=1083455352"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=1083439238"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=1083443587"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Astronaut",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=891621366"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=891633237"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=891667138"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=891636393"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=891627522"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=891609353"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=891617961"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Bubbly",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=910004836"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=910009958"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=910034870"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=910025107"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=910016857"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=910001910"
-        Animate.swimidle.SwimIdle.AnimationId = "http://www.roblox.com/asset/?id=910030921"
-        Animate.swim.Swim.AnimationId = "http://www.roblox.com/asset/?id=910028158"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Elder",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=845397899"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=845400520"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=845403856"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=845386501"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=845398858"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=845392038"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=845396048"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Knight",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=657595757"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=657568135"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=657552124"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=657564596"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=658409194"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=658360781"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=657600338"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Levitation",
-    Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616006778"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616008087"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616013216"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616010382"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616008936"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616003713"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616005863"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Mage",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=707742142"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=707855907"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=707897309"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=707861613"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=707853694"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=707826056"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=707829716"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Ninja",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=656117400"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=656118341"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=656121766"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=656118852"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=656117878"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=656114359"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=656115606"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Pirate",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=750781874"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=750782770"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=750785693"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=750783738"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=750782230"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=750779899"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=750780242"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Robot",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616088211"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616089559"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616095330"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616091570"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616090535"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616086039"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616087089"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Stylish",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616136790"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616138447"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616146177"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616140816"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616139451"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616133594"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616134815"
-    end
-})
-
-Universal:CreateButton({
-	Name = "SuperHero",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616111295"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616113536"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616122287"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616117076"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616115533"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616104706"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616108001"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Toy",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=782841498"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=782845736"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=782843345"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=782842708"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=782847020"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=782843869"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=782846423"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Werewolf",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=1083195517"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=1083214717"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=1083178339"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=1083216690"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=1083218792"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=1083182000"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=1083189019"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Zombie",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616158929"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616160636"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616168032"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616163682"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616161997"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616156119"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616157476"
-    end
-})
-		
-	Universal:CreateSection("TP Tool")
-		    Universal:CreateButton({
-			Name = "Click TP Tool",
-			Callback = function(bool)
-     mouse = game.Players.LocalPlayer:GetMouse()
-    tool = Instance.new("Tool")
-    tool.RequiresHandle = false
-    tool.Name = "Teleport (Perfectus)"
-    tool.Activated:connect(function()
-        local pos = mouse.Hit + Vector3.new(0, 2.5, 0)
-        pos = CFrame.new(pos.X, pos.Y, pos.Z)
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-    end)
-    tool.Parent = game.Players.LocalPlayer.Backpack
-   end,	
-}) 
-
-
-	
-Universal:CreateSection("Trigger")
-local TriggerBotEnabled = false
-local TriggerBotTeamCheck = false
-local Delay = 50	
-	
-	
-local ToggleTriggerBot = Universal:CreateToggle({
-			Name = "Enable Triggerbot",
-			CurrentValue = false,
-			Flag = "Universal-AutossRe-Execute",
-			Callback = function(bool)
-           TriggerBotEnabled = bool
-   end,	
-}) 	
-	
-local ToggleTeamCheck = Universal:CreateToggle({
-			Name = "Team Check",
-			CurrentValue = false,
-			Flag = "Universal-AutoRe-Execuaate",
-			Callback = function(bool)
-            TriggerBotTeamCheck = bool
-   end,	
-}) 		
-	
-	
-local TriggerBotDistance = math.huge	
-	
-	Universal:CreateSlider({
-		Name = "Distance",
-		Range = {
-			0,
-			5000
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Walk Speeda",
-		Callback = function(value)
-        TriggerBotDistance = value * 5.4321
-		end
-	})	
-	
-local Slider3 =	Universal:CreateSlider({
-		Name = "Clicking Delay Intervals",
-		Range = {
-			0,
-			2500
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Walk Speeds",
-		Callback = function(value)
-        Delay = value / 2500
-		end
-	})		
-	
-function TriggerTeamCheck(v)
-    if TriggerBotTeamCheck then
-        if v.TeamColor ~= game.Players.LocalPlayer.TeamColor then
-            return true
-        else
-            return false
-        end
-    else
-        return true
-    end
-end
-
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait() and Players.LocalPlayer
-local mouse = lp:GetMouse()
-
-function gettarget(instance)
-    if not instance then
-        return false
-    end
-    for i, v in next, Players:GetPlayers() do
-        if TriggerTeamCheck(v) and TriggerBotEnabled then
-            if v.Character and (instance == v.Character or instance:IsDescendantOf(v.Character)) then
-                if v.Character:FindFirstChild("Head") or (lp.Character and lp.Character:FindFirstChild("Head")) then
-                    local distance = (v.Character.Head.Position - lp.Character.Head.Position).magnitude
-                    if distance <= TriggerBotDistance then
-                        return true
-                    else
-                        return false
-                    end
+local breakballerbiind = Misc2:CreateKeybind({
+    Name = "Break (your) Ball, bind",
+    CurrentKeybind = "Three",
+    HoldToInteract = false,
+    Flag = "Ballbreakerbind", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Keybind)
+        game:GetService("ReplicatedStorage").Remotes.Telekinesis:FireServer()
+    end,
+ })
+local BreakBallToggle = Misc2:CreateToggle({
+   Name = "Auto Break Ball",
+   CurrentValue = false,
+   Flag = "IDballerloldfaf", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        breakballerbelike = Value
+        while true do wait()
+                if breakballerbelike then
+                    localPlayer.CharacterAdded:Connect(onCharacterAdded)
+                    game:GetService("ReplicatedStorage").Remotes.Telekinesis:FireServer()
+                    task.wait(0.2)
+                    character.HumanoidRootPart.CFrame = CFrame.new(-10002.240021, 123.299988, 200.441544)
+    task.wait(1)
+   character.Humanoid.Health = 0
+            task.wait(4)
+                    localPlayer.CharacterAdded:Connect(onCharacterAdded)
                 end
             end
-        end
-    end
-    return false
+   end,
+})
+local AutoTelekinesis = Misc2:CreateToggle({
+   Name = "Auto Telekinesis (money farm)",
+   CurrentValue = false,
+   Flag = "AutoT21321elekinesis", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        breakballerbelike = Value
+            
+        while true do wait()
+                if breakballerbelike then
+                    character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(12321,123213,123213)
+                    localPlayer.CharacterAdded:Connect(onCharacterAdded)
+                    local args = {
+    [1] = CFrame.new(-177.78134155273438, 22.17252540588379, -6.560810089111328) * CFrame.Angles(-0.5510220527648926, 0.4792300760746002, 0.2761117219924927),
+    [2] = {
+        ["1390589899"] = Vector3.new(-3606.42333984375, 309.64959716796875, 15.07781982421875),
+        ["95606930"] = Vector3.new(1109.630615234375, 97.52566528320312, 164.15850830078125),
+        ["2428748976"] = Vector3.new(-393.8770751953125, 114.9974365234375, 104.13533020019531),
+        ["138302338"] = Vector3.new(782.9514770507812, 90.34832763671875, 216.39634704589844),
+        ["game.Players.LocalPlayer.UserId"] = Vector3.new(721.59521484375, 437.5107421875, 13.196876525878906),
+        ["460529380"] = Vector3.new(3050.986572265625, -402.539306640625, -10.369964599609375),
+        ["3389515036"] = Vector3.new(-24216.498046875, 2629.838134765625, 1.3838348388671875),
+        ["253804325"] = Vector3.new(-277.2596435546875, -125.47763061523438, 44.2408447265625),
+        ["2466009586"] = Vector3.new(1826.3505859375, 865.5350341796875, -84.64073944091797),
+        ["534937301"] = Vector3.new(539.1710205078125, 96.26556396484375, 171.3994140625),
+        ["1697434972"] = Vector3.new(1627.478759765625, 611.9812622070312, -123.97309112548828),
+        ["4394721359"] = Vector3.new(1459.405029296875, 138.78118896484375, 68.75445556640625)
+    },
+    [3] = {
+        [1] = 800,
+        [2] = 378
+    }
+}
+game:GetService("ReplicatedStorage").Remotes.Telekinesis:FireServer(unpack(args))
+                    task.wait(0.2)
+                    character.HumanoidRootPart.CFrame = CFrame.new(-10002.240021, 123.299988, 200.441544)
+    task.wait(0.5)
+   character.Humanoid.Health = 0
+            task.wait(3.5)
+                    localPlayer.CharacterAdded:Connect(onCharacterAdded)
+                character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(12321,123213,123213)
+                end
+            end
+   end,
+})
+local UseTelekines = Misc2:CreateButton({
+   Name = "Use telekinesis (even from lobby) (Must own telekinesis)",
+   Callback = function()
+local args = {
+    [1] = CFrame.new(-177.78134155273438, 22.17252540588379, -6.560810089111328) * CFrame.Angles(-0.5510220527648926, 0.4792300760746002, 0.2761117219924927),
+    [2] = {
+        ["1390589899"] = Vector3.new(-3606.42333984375, 309.64959716796875, 15.07781982421875),
+        ["95606930"] = Vector3.new(1109.630615234375, 97.52566528320312, 164.15850830078125),
+        ["2428748976"] = Vector3.new(-393.8770751953125, 114.9974365234375, 104.13533020019531),
+        ["138302338"] = Vector3.new(782.9514770507812, 90.34832763671875, 216.39634704589844),
+        ["game.Players.LocalPlayer.UserId"] = Vector3.new(721.59521484375, 437.5107421875, 13.196876525878906),
+        ["460529380"] = Vector3.new(3050.986572265625, -402.539306640625, -10.369964599609375),
+        ["3389515036"] = Vector3.new(-24216.498046875, 2629.838134765625, 1.3838348388671875),
+        ["253804325"] = Vector3.new(-277.2596435546875, -125.47763061523438, 44.2408447265625),
+        ["2466009586"] = Vector3.new(1826.3505859375, 865.5350341796875, -84.64073944091797),
+        ["534937301"] = Vector3.new(539.1710205078125, 96.26556396484375, 171.3994140625),
+        ["1697434972"] = Vector3.new(1627.478759765625, 611.9812622070312, -123.97309112548828),
+        ["4394721359"] = Vector3.new(1459.405029296875, 138.78118896484375, 68.75445556640625)
+    },
+    [3] = {
+        [1] = 800,
+        [2] = 378
+    }
+}
+game:GetService("ReplicatedStorage").Remotes.Telekinesis:FireServer(unpack(args))
 end
-
-local function triggerbot()
-    local target = mouse.Target
-    if target and gettarget(target) then
-        local character = target.Parent
-        if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-            mouse1press()
-            task.wait(Delay)
-            mouse1release()
-        end
-    else
-        return false
-    end
+})
+local ResetCD = Misc2:CreateButton({
+   Name = "Reset Cooldown",
+   Callback = function()
+    character.HumanoidRootPart.CFrame = CFrame.new(-10002.240021, 123.299988, 200.441544)
+    task.wait(1)
+   character.Humanoid.Health = 0
 end
-
-local con = game:GetService("RunService").Heartbeat:Connect(triggerbot)
-
-local AimEnabled = false
-local AimTeamCheck = true
-local ASWallCheck = true
-local ShowFov = false
-local HorizontalSmoothness = 10
-local VerticalSmoothness = 10
-local FOVRadius3 = 50
-local BodyHitbox = "HumanoidRootPart"
-local WallCheckOrigin = "Camera"
-local Origin = "Camera"
-
-local Prediction = false
-local PredictionAmount = 0
-local BackTracing = false
-task.wait(0.5)
-
-Universal:CreateSection("Aim")
-local AimbotToggle = Universal:CreateToggle({
-    Name = "Enable Aim Assist",
-    CurrentValue = false,
-    Flag = "Loop Walk Speeda",
-    Callback = function(bool)
-    AimEnabled = bool
-    end
 })
-
-local TAimPart = "HumanoidRootPart"
-
-local HitPartDropdown = Universal:CreateDropdown({
-	Name = "Target Hit Part",
-	Options = {"Head", "UpperTorso", "LowerTorso", "HumanoidRootPart", "RightUpperLeg", "LeftHand", "RightHand", "LeftLowerArm",
-    "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg", "LeftUpperLeg", "RightFoot",
-    "RightLowerLeg"},
-	CurrentOption = "",
-	Flag = "Stara",
-	Callback = function(hitpart, bool)
-           TAimPart = hitpart
-        if TAimPart == "Head" then
-            BodyHitbox = "Head"
-        elseif TAimPart == "UpperTorso" then
-            BodyHitbox = "UpperTorso"
-        elseif TAimPart == "LowerTorso" then
-            BodyHitbox = "LowerTorso"
-        elseif TAimPart == "RightUpperLeg" then
-            BodyHitbox = "RightUpperLeg"
-        elseif TAimPart == "LeftHand" then
-            BodyHitbox = "LeftHand"
-        elseif TAimPart == "RightHand" then
-            BodyHitbox = "RightHand"
-        elseif TAimPart == "LeftLowerArm" then
-            BodyHitbox = "LeftLowerArm"
-        elseif TAimPart == "RightLowerArm" then
-            BodyHitbox = "RightLowerArm"
-        elseif TAimPart == "LeftUpperArm" then
-            BodyHitbox = "LeftUpperArm"
-        elseif TAimPart == "RightUpperArm" then
-            BodyHitbox = "RightUpperArm"
-        elseif TAimPart == "LeftFoot" then
-            BodyHitbox = "LeftFoot"
-        elseif TAimPart == "LeftLowerLeg" then
-            BodyHitbox = "LeftLowerLeg"
-        elseif TAimPart == "LeftUpperLeg" then
-            BodyHitbox = "LeftUpperLeg"
-        elseif TAimPart == "RightFoot" then
-            BodyHitbox = "RightFoot"
-        elseif TAimPart == "RightLowerLeg" then
-            BodyHitbox = "RightLowerLeg"
+local SkinsDescription = Skins:CreateSection("Description")
+local Descriptionyk = Skins:CreateButton({
+   Name = "Click me pls",
+   Callback = function()
+        local bindableFunction= Instance.new("BindableFunction")
+game.StarterGui:SetCore("SendNotification", {
+   Title = "Description";
+   Text = "Pls Use Starter Sword for skins.Only you see these skins (because they're on client). It teleports you to thing where it teleports because that is only (prob) way for it to look good. Press button to close!";
+   Icon = "rbxassetid://14887567417";
+   Duration = 10;
+   callbakc = bindableFunction;
+   Button1 = "Close this pls";
+})
+            game.StarterGui:SetCore("SendNotification", {
+   Title = "Description";
+   Text = "Because That is Needed (Contiuniation (I forgor word) Of Text). In future Ill prob make it support more swords to change skins (not starter only)";
+   Icon = "rbxassetid://14887567417";
+   Duration = 10;
+   callbakc = bindableFunction;
+   Button1 = "Close this pls";
+})
+    game.StarterGui:SetCore("SendNotification", {
+   Title = "Description";
+   Text = "it support more swords to change skins (not starter only) (Continuation of text)";
+   Icon = "rbxassetid://14887567417";
+   Duration = 10;
+   callbakc = bindableFunction;
+   Button1 = "Close this pls";
+})
+end
+})
+local Limiteds = Skins:CreateSection("Limited Skins")
+local EmpyrianSword = Skins:CreateButton({
+   Name = "Empyrean Greatblade Skin. Ofc its not perfect",
+   Callback = function()
+            local localplayer = game.Players.LocalPlayer
+local character = localplayer.Character
+local Katanamesh = character:FindFirstChildOfClass("Model"):FindFirstChild("KatanaMesh")
+local Empyreansword = game:GetService("ReplicatedStorage").Misc.Swords.Limited["Empyrean Greatblade"]
+local SkinSword = Empyreansword:FindFirstChild("Meshes/Sword")
+local SkinSwordClone = Empyreansword:FindFirstChild("Meshes/Sword"):Clone()
+SkinSwordClone.Anchored = false
+SkinSwordClone.Parent = character:FindFirstChildOfClass("Model")
+SkinSwordClone.CFrame = Katanamesh.CFrame
+local katmesh = Katanamesh
+local weldthing = Instance.new("Weld")
+weldthing.Parent = SkinSwordClone
+weldthing.Part0 = SkinSwordClone
+weldthing.Part1 = katmesh
+katmesh.Transparency = 1
+character.HumanoidRootPart.CFrame = CFrame.new(-233.710556, 123.299973, 203.648102)
+task.wait(0.1)
+SkinSwordClone.Rotation = Vector3.new(-75.41799926757812, -90, 0)
+end
+})
+local OniClaws = Skins:CreateButton({
+   Name = "Oni Claws",
+   Callback = function()
+local bindableFunction= Instance.new("BindableFunction")
+game.StarterGui:SetCore("SendNotification", {
+   Title = "Description";
+   Text = "Ik that its looks bad";
+   Icon = "rbxassetid://14887567417";
+   Duration = 3;
+   callbakc = bindableFunction;
+   Button1 = "Close this pls";
+})
+            
+    local localplayer = game.Players.LocalPlayer
+local character = localplayer.Character
+local sword = character:FindFirstChildOfClass("Model")
+local claws = game:GetService("ReplicatedStorage").Misc.Swords.Limited["Oni Claws"]:Clone()
+local Katanamesh = character:FindFirstChildOfClass("Model"):FindFirstChild("KatanaMesh")
+local Cestsu1 = claws.Cestus
+local Cestsu2 = claws.Cestus2
+local Glove = claws
+local Cestus1 = Glove:FindFirstChild("Cestus")
+local Cestus1Blade = Cestus1:FindFirstChild("Meshes/oni claws textured_Cube.010_Cube.020")
+local thing = Cestus1Blade
+local Cestus2 = Glove:FindFirstChild("Cestus2")
+Glove.Parent = sword
+local leftarm = Instance.new("Weld")
+leftarm.Name = "Left Arm"
+leftarm.Parent = Cestus1
+leftarm.Part0 = Cestus1.zaza
+leftarm.Part1 = character:FindFirstChild("Left Arm")
+local leftarm = Instance.new("Weld")
+leftarm.Name = "Right Arm"
+leftarm.Parent = Cestus2
+leftarm.Part0 = Cestus2.zaza
+leftarm.Part1 = character:FindFirstChild("Right Arm")
+local katmesh = Katanamesh
+katmesh.Transparency = 1
+    character:FindFirstChildOfClass("Model").sord:Remove()
+    character:FindFirstChildOfClass("Model").handle:Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("WhiteFlameCharges"):Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("Excalibur"):Remove()
+end
+})
+local OniClaws = Skins:CreateButton({
+   Name = "Funni Oni Claws (Double Oni Claws)",
+   Callback = function()
+local bindableFunction= Instance.new("BindableFunction")
+game.StarterGui:SetCore("SendNotification", {
+   Title = "Description";
+   Text = "Ik that its looks bad";
+   Icon = "rbxassetid://14887567417";
+   Duration = 3;
+   callbakc = bindableFunction;
+   Button1 = "Close this pls";
+})
+            
+    local localplayer = game.Players.LocalPlayer
+local character = localplayer.Character
+local sword = character:FindFirstChildOfClass("Model")
+local claws = game:GetService("ReplicatedStorage").Misc.Swords.Limited["Oni Claws"]:Clone()
+local claws2 = game:GetService("ReplicatedStorage").Misc.Swords.Limited["Oni Claws"]:Clone()
+local Katanamesh = character:FindFirstChildOfClass("Model"):FindFirstChild("KatanaMesh")
+local Cestsu1 = claws.Cestus
+local Cestsu2 = claws.Cestus2
+local Glove = claws
+local Glove2 = claws2
+local Cestus1 = Glove:FindFirstChild("Cestus")
+local Csetus2 = Glove2:FindFirstChild("Cestus2")
+local Cestus1Blade = Cestus1:FindFirstChild("Meshes/oni claws textured_Cube.010_Cube.020")
+local thing = Cestus1Blade
+local Cestus2 = Glove:FindFirstChild("Cestus2")
+local Csetus1 = Glove2:FindFirstChild("Cestus")
+Glove.Parent = sword
+local leftarm = Instance.new("Weld")
+leftarm.Name = "Left Arm"
+leftarm.Parent = Cestus1
+leftarm.Part0 = Cestus1.zaza
+leftarm.Part1 = character:FindFirstChild("Left Arm")
+local leftarm = Instance.new("Weld")
+leftarm.Name = "Right Arm"
+leftarm.Parent = Cestus2
+leftarm.Part0 = Cestus2.zaza
+leftarm.Part1 = character:FindFirstChild("Right Arm")
+Glove2.Parent = sword
+local lfetarm = Instance.new("Weld")
+lfetarm.Name = "Lfet Arm"
+lfetarm.Parent = Csetus2
+lfetarm.Part0 = Csetus2.zaza
+lfetarm.Part1 = character:FindFirstChild("Left Arm")
+local rarm = Instance.new("Weld")
+rarm.Name = "Rgiht Arm"
+rarm.Parent = Csetus1
+rarm.Part0 = Csetus1.zaza
+rarm.Part1 = character:FindFirstChild("Right Arm")
+            
+local katmesh = Katanamesh
+katmesh.Transparency = 1
+    character:FindFirstChildOfClass("Model").sord:Remove()
+    character:FindFirstChildOfClass("Model").handle:Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("WhiteFlameCharges"):Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("Excalibur"):Remove()
+end
+})
+local Unique = Skins:CreateSection("Unique")
+local GodSaber = Skins:CreateButton({
+   Name = "God Saber (WIP, still working but Im working on it for it be better)",
+   Callback = function()
+            local localplayer = game.Players.LocalPlayer
+local character = localplayer.Character
+local Katanamesh = character:FindFirstChildOfClass("Model"):FindFirstChild("KatanaMesh")
+local godsaber = game:GetService("ReplicatedStorage").Misc.Swords.Unique.Godsaber
+local Swordsfd = character:FindFirstChildOfClass("Model")
+local SkinSword = godsaber
+local SkinSwordClone = godsaber:Clone()
+local godkatanamesh = godsaber:FindFirstChild("KatanaMesh")
+local godhandle = godsaber:FindFirstChild("handle")
+local godsord = godsaber:FindFirstChild("sord")
+local godBlade = godsaber:FindFirstChild("Blade")
+local godMain = godBlade:FindFirstChild("Main")
+local katmesh = Katanamesh
+local katmeshholder = Instance.new("Part")
+katmeshholder.Parent = Swordsfd
+katmeshholder.Name = "HolderForSword"
+katmeshholder.CFrame = katmesh.CFrame
+katmeshholder.Rotation = katmesh.Rotation
+katmeshholder.Transparency = 1
+katmeshholder.CanCollide = false
+katmeshholder.Anchored = true
+if character:FindFirstChildOfClass("Model"):FindFirstChild("Godsaber") then
+    character:FindFirstChildOfClass("Model"):FindFirstChild("Godsaber"):Remove()
+task.wait(0.1)
+godMain.Anchored = false
+godsord.Anchored = false
+godhandle.Anchored = false
+godkatanamesh.Anchored = false
+SkinSwordClone.Parent = character:FindFirstChildOfClass("Model")
+character.HumanoidRootPart.CFrame = CFrame.new(-233.710556, 123.299973, 203.648102)
+godsord.CFrame = katmeshholder.CFrame
+godhandle.CFrame = katmeshholder.CFrame + Vector3.new(0,0.6,-1.5)
+godkatanamesh.CFrame = katmeshholder.CFrame
+godMain.CFrame = katmeshholder.CFrame
+godkatanamesh.WeldConstraint.Part1 = character:FindFirstChild("Left Leg")
+task.wait(0.2)
+godMain.Rotation = Vector3.new(112, 0, 90)
+godhandle.Rotation = Vector3.new(-159, 0, 100)
+katmesh.Transparency = 1
+        Rayfield:Notify({
+   Title = "If Sword in wrong place (not where swords are on character then press again",
+   Content = "OR reset character then try again",
+   Duration = 20,
+   Image = 14887567417,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Ok!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+})
+elseif not character:FindFirstChildOfClass("Model"):FindFirstChild("Godsaber") then
+    godMain.Anchored = false
+godsord.Anchored = false
+godhandle.Anchored = false
+godkatanamesh.Anchored = false
+SkinSwordClone.Parent = character:FindFirstChildOfClass("Model")
+character.HumanoidRootPart.CFrame = CFrame.new(-233.710556, 123.299973, 203.648102)
+godsord.CFrame = katmeshholder.CFrame
+godhandle.CFrame = katmeshholder.CFrame + Vector3.new(0,0.6,-1.5)
+godkatanamesh.CFrame = katmeshholder.CFrame
+godMain.CFrame = katmeshholder.CFrame
+godkatanamesh.WeldConstraint.Part1 = character:FindFirstChild("Left Leg")
+task.wait(0.2)
+godMain.Rotation = Vector3.new(112, 0, 90)
+godhandle.Rotation = Vector3.new(-159, 0, 100)
+katmesh.Transparency = 1
+    character:FindFirstChildOfClass("Model").sord:Remove()
+    character:FindFirstChildOfClass("Model").handle:Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("WhiteFlameCharges"):Remove()
+    character:FindFirstChildOfClass("Model"):FindFirstChild("Excalibur"):Remove()
+        Rayfield:Notify({
+   Title = "If Sword in wrong place (not where swords are on character then press again",
+   Content = "OR reset character then try again",
+   Duration = 20,
+   Image = 14887567417,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Ok!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+})
         end
-	end,
-})
-Universal:CreateSection("Checker")
-local ASTeamCheck = Universal:CreateToggle({
-    Name = "Team Check",
-    CurrentValue = false,
-    Flag = "Loop Walk Speeddd",
-    Callback = function(bool)
-    AimTeamCheck = bool
     end
-})
-
-local ASWallCheckToggle = Universal:CreateToggle({
-    Name = "Wall Check",
-    CurrentValue = false,
-    Flag = "Loop Walk ssSpeed",
-    Callback = function(bool)
-    ASWallCheck = bool
-    end
-})
-Universal:CreateSection("Teleport")
-local TeleportPlayerType = "MoveTo"
-
-local HitPartDropdown = Universal:CreateDropdown({
-	Name = "Player Teleport Type",
-	Options = {"MoveTo", "CFrame", "PivotTo"},
-	CurrentOption = "",
-	Flag = "Stssar",
-	Callback = function(TeleportType, bool)
-    TeleportPlayerType = tostring(TeleportType)
-	end,
-})
-
-Universal:CreateButton({
-    Name = "Teleport to 0,0,0",
-    CurrentValue = false,
-    Flag = "Loopaa",
-    Callback = function()
-       if TeleportPlayerType == "MoveTo" then
-        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(0, 0, 0))
-    elseif TeleportPlayerType == "CFrame" then
-        game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(0, 0, 0)
-    elseif TeleportPlayerType == "PivotTo" then
-        game.Players.LocalPlayer.Character:PivotTo(0, 0, 0)
-    end
-    end
-})
-local XAxis = 0
-
-	Universal:CreateSlider({
-		Name = "X Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Walaaa",
-		Callback = function(value)
-        XAxis = value
-		end
-	})
-	
-local YAxis = 0
-	Universal:CreateSlider({
-		Name = "Y Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Walk Sddspeed",
-		Callback = function(value)
-      YAxis = value
-		end
-	})
-
-local ZAxis = 0
-	Universal:CreateSlider({
-		Name = "Z Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Walk sdsdSpeed",
-		Callback = function(value)
-        ZAxis = value
-		end
-	})
-Universal:CreateButton({
-    Name = "Teleport to Axis",
-    CurrentValue = false,
-    Flag = "Loop sddsWalk Speed",
-    Callback = function()
-   if TeleportPlayerType == "MoveTo" then
-        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(XAxis, YAxis, ZAxis))
-    elseif TeleportPlayerType == "CFrame" then
-        game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(XAxis, YAxis, ZAxis)
-    elseif TeleportPlayerType == "PivotTo" then
-        game.Players.LocalPlayer.Character:PivotTo(XAxis, YAxis, ZAxis)
-
-    end
-    end
-})
-
-game:GetService("StarterGui"):SetCore("SendNotification",{
-	Title = "Perfectus Hub", -- Required
-	Text = "Loaded", -- Required
-	Icon = "rbxassetid://14887567417" -- Optional
-})
-
-Rayfield:LoadConfiguration()
+    })
