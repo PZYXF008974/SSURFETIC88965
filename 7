@@ -1,305 +1,433 @@
-local name = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name;
-local name2 = "Updates" 
-local client = game.Players.LocalPlayer
-local Plr = game.Players.LocalPlayer
-local vu = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
-local tweenspeed = 19
-local TweenOffsetZ = 0
-local TweenOffsetY = 0
-local TweenOffsetX = 0
-local players = game:GetService("Players")
-local player = players.LocalPlayer
-local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-local animationTracks = {}
+repeat wait() until game:IsLoaded()
 
-local function playIdleAnimation(duration)
-    if not humanoid then
-        return
-    end
-
-    local replicatedStorage = game:GetService("ReplicatedStorage")
-    local animation1 = replicatedStorage.Assets.TargetAnimations:FindFirstChild("Idle")
-    if not animation1 then
-        return
-    end
-
-    local animationTrack = humanoid:LoadAnimation(animation1)
-    animationTrack:Play()
-end
-
-local options = {"1kg", "2kg (100)", "3kg (300)", "4kg (900)", "6kg (2k)", "8kg (4.2k)", "14kg (9k)", "22kg (20k)", "36kg (40k)", "60kg (90k)", "90kg (350k)", "150kg (750k)"}
-local options1 = {"250kg (6M)", "400kg (11.5M)", "650kg (20M)", "1000kg (41M)", "2000kg (78M)", "3000kg (150M)", "4500kg (280M)", "7000kg (500M)", "12000kg (1B)", "30000kg (3.7B)", "50000kg (6.9B)"}
-
-local function toggleValue(objectName)
-    local object = player.PlayerGui:FindFirstChild("UI").Pages:FindFirstChild(objectName)
-    if object and object:IsA("BoolValue") then
-        object.Value = not object.Value
-    end
-end
-
-local function playAnimation(animationName)
-    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-    if not humanoid then
-        return
-    end
-
-    local animation = game.Workspace.Animations.Training[animationName]
-    if not animation then
-        return
-    end
-
-    if not animationTracks[animationName] then
-        animationTracks[animationName] = humanoid:LoadAnimation(animation)
-    end
-
-    animationTracks[animationName]:Play()
-end
-
-local function playAnimation1(animationName)
-    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-    if not humanoid then
-        return
-    end
-
-    local animation = game.Workspace.Animations.Pushing[animationName]
-    if not animation then
-        return
-    end
-
-    if not animationTracks[animationName] then
-        animationTracks[animationName] = humanoid:LoadAnimation(animation)
-    end
-
-    animationTracks[animationName]:Play()
-end
-
-local function stopAnimation(animationName)
-    local animationTrack = animationTracks[animationName]
-    if animationTrack then
-        animationTrack:Stop()
-    end
-end
-
-local player = game.Players.LocalPlayer
-local autoEggUIValue = player.PlayerGui.EggUI.Auto
-
-local player = game.Players.LocalPlayer
-
-local function toggleValue(objectName)
-    local crafting = player.PlayerGui.UI.Pages:FindFirstChild(objectName)
-    if crafting and crafting:IsA("Frame") then
-        local openValue = crafting:FindFirstChild("Open")
-        if openValue and openValue:IsA("BoolValue") then
-            openValue.Value = not openValue.Value
-        end
-    end
-end
-
-local function agreedgamepasses()
-    local Players = game:GetService("Players")
-    local localPlayer = Players.LocalPlayer.Gamepasses
-
-    if localPlayer then
-        local values = {
-            "FastHatch"
-        }
-
-        for _, valueName in ipairs(values) do
-            local value = localPlayer[valueName]
-            if value and value:IsA("BoolValue") then
-                value.Value = true
-            end
-        end
-    end
-end
-
--- ignore how messy it is
-getgenv().cham = false
-getgenv().nameESP = false
-getgenv().boxESP = false
-getgenv().esp_loaded = false
-getgenv().Visibility = false
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local Player = game:GetService("Players").LocalPlayer or game:GetService("Players").PlayerAdded:Wait()
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
-
-local function Click(v)
-	VirtualInputManager:SendMouseButtonEvent(v.AbsolutePosition.X+v.AbsoluteSize.X/2,v.AbsolutePosition.Y+50,0,true,v,1)
-	VirtualInputManager:SendMouseButtonEvent(v.AbsolutePosition.X+v.AbsoluteSize.X/2,v.AbsolutePosition.Y+50,0,false,v,1)
-end
-
-local function comma(amount)
-	local formatted = amount
-	local k
-	while true do  
-		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-		if (k==0) then
-			break
-		end
-	end
-	return formatted
-end
-local function TweenTo(cf, dur)
-    local Character = LocalPlayer.Character
-    if not Character or not Character:FindFirstChild("HumanoidRootPart") then
-        return
-    end
-
-    local rootPart = Character:WaitForChild("HumanoidRootPart")
-    local direction = (cf.p - rootPart.Position).unit
-    local targetCFrame = CFrame.new(cf.p + Vector3.new(TweenOffsetX, TweenOffsetY, TweenOffsetZ))
-    local distance = (targetCFrame.p - rootPart.CFrame.p).Magnitude
-    local tweenInfo = TweenInfo.new(distance / tweenspeed, Enum.EasingStyle.Linear)
-    local tween = TweenService:Create(rootPart, tweenInfo, {
-        CFrame = targetCFrame
-    })
-    tween:Play()
-
-    return tween
-end
-
-local Window = Rayfield:CreateWindow({
-	Name = name,
-	LoadingTitle = "Perfectus Hub",
-	LoadingSubtitle = "by Perfectus",
-	ConfigurationSaving = {
-		Enabled = true,
-		FolderName = nil, 
-		FileName = "Oxygen"
-	},
-        Discord = {
-        	Enabled = true,
-        	Invite = "RVnjYRWNA9", 
-        	RememberJoins = true
-        },
-      KeySystem = false, -- Set this to true to use our key system
-      KeySettings = {
-      Title = "Oxygen Hub",
-      Subtitle = "Key System",
-      Note = "Join the discord (discord.gg/RVnjYRWNA9)",
-      FileName = "Key",
-      SaveKey = true,
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = "FUCKME"
-   }
-
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loading Hub", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
 })
 
-local i = 7539983773
-local Tab = Window:CreateTab("Main", i)
-Tab:CreateSection("Farming")
+wait(0.1)
 
-Rayfield:Notify({
-   Title = "Perfectus Hub Executed",
-   Content = "Standart Mod",
-   Duration = 5,
-   Image = nil,
-   Actions = { -- Notification Butto ns
-      Ignore = {
-         Name = "Okay",
-         Callback = function()
-         print("Started Perfectus Hub")
-      end
-   },
-},
-})
-
-function autoattack()
-    local button = game:service'VirtualInputManager'
-    local X, Y = 0, 0
-    
-    button:SendMouseButtonEvent(X, Y, 0, true, game, 1)
-    button:SendMouseButtonEvent(X, Y, 0, false, game, 1)
-end
-
-function keyboard()
-    local button = game:service'VirtualInputManager'
-    local X, Y = 0, 0
-
-    button:SendKeyEvent(true, "E", false, game)
-    wait(0.1)
-end
-
- function tp(PCFrame)
-    local plr = game.Players.LocalPlayer;
-           if plr.Character then
-            plr.Character.HumanoidRootPart.CFrame = PCFrame
-        end
-    end 
-
---Toggle
-Tab:CreateToggle({
-	Name = "Auto Power",
-	CurrentValue = false,
-	Callback = function(Value)
-        at= Value
-            while at do task.wait()
-            game:GetService("ReplicatedStorage").Remotes.PowerGain:FireServer()
-            game:GetService("ReplicatedStorage").Remotes.PowerGainAuto:FireServer()
-		end
-	end,
-})
-Tab:CreateToggle({
-	Name = "Auto Push",
-	CurrentValue = false,
-	Callback = function(Value)
-        ats = Value
-            while ats do task.wait()
-    game:GetService("ReplicatedStorage").Remotes.PushGain:FireServer()
-		end
-	end,
-})
-Tab:CreateToggle({
-	Name = "Auto Rebirth",
-	CurrentValue = false,
-	Callback = function(Value)
-        reb = Value
-            while reb do task.wait(0.5)
-    game:GetService("ReplicatedStorage").Remotes.Rebirth:FireServer()
-		end
-	end,
-})
-Tab:CreateSection("UGC")
-Tab:CreateToggle({
-	Name = "Auto Claim UGC",
-	CurrentValue = false,
-	Callback = function(Value)
-        ugc = Value
-            while ugc do task.wait(0.5)
-    game:GetService("ReplicatedStorage").Remotes.ClaimUGC:FireServer()
-
-		end
-	end,
-})
-
-local stats = client.GameStats
-Tab:CreateSection("Dumbell")
-
-local Input = Tab:CreateInput({
-   Name = "[Fixed] Enter Dumbell Kg (Example:2kg)",
-   PlaceholderText = "",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-   local args = {
-    [1] = "Equip",
-    [2] = Text
+getgenv().AutoSaveSettings = {
+    AutoBestDumbell = false,
+    AutoFuse = false,
 }
 
-game:GetService("ReplicatedStorage").Remotes.DumbellEquip:FireServer(unpack(args))
+local mainimg = "rbxassetid://7539983773"
+local openimg = "rbxassetid://9194077649"
+local guiimg = "rbxassetid://4458888115"
+local dungeonimg = "rbxassetid://6730262023"
+local teleportimg = "rbxassetid://6723742952"
+local universalimg = "rbxassetid://10885655986"
+local perfectuslogo = "rbxassetid://14887567417"
+local farmingimg = "rbxassetid://7485051715"
+local statsimg = "rbxassetid://14377123173"
+local settingimg = "rbxassetid://11446835336"
+local discordimg = "rbxassetid://1461403871"
 
-   end,
+local client = game.Players.LocalPlayer
+
+local perfectushub = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Binintrozza/GUI-SCRIPT/main/GUI_NEW.lua')))()
+
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    
+
+
+    local Window = perfectushub:MakeWindow({Name = "Perfectus Hub      "..placeName, HidePremium = false, SaveConfig = true, IntroEnabled = true, IntroText = "Perfectus Hub", IntroIcon = "rbxassetid://14887567417",Intro ="rbxassetid://14887567417" , ConfigFolder = "perfectushub"})
+    
+
+        local Welcome = Window:MakeTab({
+        Name = "Welcome",
+        Icon = statsimg,
+        PremiumOnly = false
+    }) 
+
+    local Main = Window:MakeTab({
+        Name = "Main",
+        Icon = mainimg,
+        PremiumOnly = false
+    }) 
+       
+        local Farming = Window:MakeTab({
+        Name = "Farming",
+        Icon = farmingimg,
+        PremiumOnly = false
+    }) 
+
+local HS = game:GetService("HttpService")
+local RS = game:GetService("ReplicatedStorage")
+local WS = game:GetService("Workspace")
+local P = game:GetService("Players")
+local VU = game:GetService("VirtualUser")
+local VIM = game:GetService("VirtualInputManager")
+local RunS = game:GetService("RunService")
+local TS = game:GetService("TweenService")
+local httpRequest = (syn and syn.request) or http_request or request or (http and http.request) or nil
+local player = P.LocalPlayer
+local originalCameraZoomDistance = player.CameraMaxZoomDistance
+local character = player.Character
+local stats = player.GameStats
+local crwl = player.GameStats.CurrentWorld
+
+    Welcome:AddLabel("Welcome "..game.Players.LocalPlayer.DisplayName)
+    
+    local Time = Welcome:AddLabel("Server Time")
+    function UpdateTime()
+    local GameTime = math.floor(workspace.DistributedGameTime+0.5)
+    local Hour = math.floor(GameTime/(60^2))%24
+    local Minute = math.floor(GameTime/(60^1))%60
+    local Second = math.floor(GameTime/(60^0))%60
+    Time:Set("Game Time : Hours : "..Hour.." Minutes : "..Minute.." Seconds : "..Second)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime()
+    end)
+    end
+    end)
+    
+    Client = Welcome:AddLabel("Client")
+    
+    function UpdateClient()
+    local Fps = workspace:GetRealPhysicsFPS()
+    Client:Set("Fps : "..Fps)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient()
+    end
+    end)
+    
+    Client1 = Welcome:AddLabel("Client")
+    
+    function UpdateClient1()
+    local Ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    Client1:Set("Ping : "..Ping)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient1()
+    end
+    end)
+    
+    local Thanksforreport = Welcome:AddLabel("Report Bug")
+
+    local ReportBugs = nil
+    Welcome:AddTextbox({
+	Name = "Text Report Bug",
+	Default = "Here",
+	TextDisappear = false,
+	Callback = function(value)
+	ReportBugstext = value
+	end	  
+})
+    
+   
+    local url = "https://discord.com/api/webhooks/1157214783897096202/wp7MmLOgCDCacfmm8R90V3t0EiWpCKZc5RkD67ZlasLg0xfS4QB6aqnANXzSAMXT1e72"
+    Welcome:AddButton({
+	Name = "Enter",
+	Callback = function()
+       Thanksforreport:Set("Thank You For Reported Bugs")
+        wait(5)
+        Thanksforreport:Set("Report Bug")
+    local data = {
+        ["username"] = 'Perfectus',
+        ['content'] = '',
+        ["avatar_url"] = "",
+        ["embeds"] = {
+            {
+                ["description"] = "**Bug Reporting Webhook**",
+                ["color"] = tonumber(255), -- color id		
+                ["type"] = "rich",
+                ["fields"] =  {
+                    {
+                        ["name"] = "Hwid",
+                        ["value"] = '```lua'..'\n'..game:GetService("RbxAnalyticsService"):GetClientId()..'\n```',
+                    },
+                    {
+                        ["name"] = "Username",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.Name..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Display Name",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.DisplayName..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Reported Bug",
+                        ["value"] = '```lua'..'\n'..ReportBugstext..'\n```',
+                        ["inline"] = false
+                    }
+                },
+                ["footer"] = {
+                    ["text"] = "Reported Bug",
+                },
+                ["timestamp"] = DateTime.now():ToIsoDate(),
+            }
+        },
+    }
+    local newdata = game:GetService("HttpService"):JSONEncode(data)
+    local headers = {["content-type"] = "application/json"}
+    request = http_request or request or HttpPost or syn.request
+    local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+    request(abcdef)
+    
+    end,
 })
 
 
-Tab:CreateSection("PlayTime")
 
-Tab:CreateToggle({
+Farming:AddSection({
+    Name = "Current World"
+})
+
+local Label1 = Farming:AddLabel(crwl.Value)
+
+function UpdateTime()
+    Label1:Set(crwl.Value)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime()
+    end)
+    end
+    end)
+
+Farming:AddSection({
+    Name = " Auto Farm"
+})
+
+local world ={}
+for _,v in pairs(game.workspace.Map.Worlds:GetChildren()) do
+    table.insert(world,v.Name)
+end
+
+local selectedworld
+local Dropdown2 = Farming:AddDropdown({
+	Name = "Select to World",
+	Options = world,
+	Callback = function(Option)
+        selectedworld = Option
+	end,
+})
+
+local enemy = {}
+for i, v in pairs(game.workspace.Map.Worlds:GetDescendants()) do
+    if v:IsA "Folder" and v.Parent.Name == "Levels" then
+		if not table.find(enemy, tostring(v)) then
+			table.insert(enemy, tostring(v))
+		end
+    end
+end
+
+
+local selectedenemy
+local Dropdown = Farming:AddDropdown({
+	Name = "Select to Enemy",
+	Options = enemy,
+	Callback = function(Option)
+        selectedenemy = Option
+	end,
+})
+
+
+local selectenemy
+Farming:AddToggle({
+	Name = "Fight Selected Enemy",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		selectenemy = Value
+        if Value then
+            spawn(function()
+                selectenemy_func()
+            end)
+          end
+	end,
+})
+
+local howmuchs
+Farming:AddSlider({
+    Name = "Auto Fight Delay /s",
+    Min = 0,
+    Max = 12,
+    Default = 1,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "/s",
+    Callback = function(dly1)
+    howmuchs = dly1
+    end  
+})
+
+local crrentworld = player.GameStats.CurrentWorld
+
+Farming:AddButton({
+	Name = "Tp Enemy",
+	Callback = function(Value)
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Map.Worlds[selectedworld].Levels[selectedenemy].Spawner.CFrame * CFrame.new(0,0,5)
+	end,
+})
+
+
+
+function selectenemy_func()
+    spawn(function()
+        while wait(howmuchs) and selectenemy do
+            function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
+
+            local args = {
+                [1] = workspace.Map.Worlds[selectedworld].Levels[selectedenemy].Spawner,
+                [2] = 5.373063564300537,
+                [3] = "Simulate",
+            }
+            
+            game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
+             
+        end
+    end)
+end
+
+
+
+Main:AddSection({
+    Name = "Features"
+})
+Main:AddToggle({
+    Name = "Auto Power",
+    Default = false,
+    Save = true,
+    Flag = "AUTO CLICK",
+    Callback = function(v)
+    a = v
+    while a do wait()
+            game:GetService("ReplicatedStorage").Remotes.PowerGain:FireServer()
+            game:GetService("ReplicatedStorage").Remotes.PowerGainAuto:FireServer()
+        end
+    end
+})
+
+Main:AddToggle({
+    Name = "Auto Push",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(v)
+    b = v
+    while b do wait()
+        game:GetService("ReplicatedStorage").Remotes.PushGain:FireServer()
+    end
+    end
+})
+
+Main:AddSection({
+    Name = "Dumbell"
+})
+
+local dumbelbilgi = game.ReplicatedStorage.Assets.Dumbells
+
+local dumbelf = {}
+for _,v in pairs(dumbelbilgi:GetChildren()) do
+    table.insert(dumbelf,v.Name)
+end
+
+
+    Main:AddDropdown({
+	Name = "Check it Dumbell Numeral",
+	Options = dumbelf,
+	Callback = function(Option)
+
+	end,
+})
+
+local dumbelnumeral
+    Main:AddTextbox({
+	Name = "Enter Dumbell Numeral (example:kg, KT, Qd, Qn)",
+	Default = "Enter",
+	TextDisappear = true,
+	Callback = function(Text2)
+    dumbelnumeral = Text2
+	end	  
+})
+
+
+
+Main:AddToggle({
+    Name = "Auto Equip Best Dumbell (Req:Dumbell Numeral)",
+    Default = false,
+    Callback = function(bool)
+getgenv().AutoSaveSettings.AutoBestDumbell = bool 
+    while task.wait() do 
+        if getgenv().AutoSaveSettings.AutoBestDumbell == true then 
+            for i = 1, 15000 do
+                local args = {
+                   [1] = "Equip",
+                   [2] = i .. dumbelnumeral
+                }
+            game:GetService("ReplicatedStorage").Remotes.DumbellEquip:FireServer(unpack(args))
+            end
+        else
+        wait()
+    break
+  end 
+end 
+    end
+})
+Main:AddButton({
+    Name = "Disable Notification",
+    Callback = function()
+game.Players.LocalPlayer.PlayerGui.UI.Notification.Visible = false
+    end
+})
+Main:AddSection({		
+    Name = "Rebirth"
+})
+
+
+Main:AddToggle({
+    Name = "Auto Rebirth",
+    Default = false,
+    Callback = function(Value)
+        reb = Value
+        while reb do task.wait(0.5)
+game:GetService("ReplicatedStorage").Remotes.Rebirth:FireServer()
+    end
+    end
+})    
+
+Main:AddSection({		
+    Name = "UGC"
+})
+
+
+Main:AddToggle({
+    Name = "Auto Claim UGC",
+    Default = false,
+    Callback = function(Value)
+        ugc = Value
+        while ugc do task.wait(0.5)
+local args = {[1] = 1}game:GetService("ReplicatedStorage").Remotes.ClaimUGC:FireServer()
+local args = {[1] = 1}game:GetService("ReplicatedStorage").Remotes.ClaimUGC:FireServer()
+    
+        end
+    end
+})   
+
+Main:AddSection({
+    Name = "PlayTime"
+})
+Main:AddToggle({
 	Name = "Auto Claim PlayTime",
-	CurrentValue = false,
+	Default = false,
 	Callback = function(Value)
         pl = Value
             while pl do task.wait(0.5)
@@ -316,24 +444,14 @@ Tab:CreateToggle({
 	end,
 })
 
-Tab:CreateSection("Hour Egg")
 
-Tab:CreateToggle({
-	Name = "Auto Hatch Hour Egg",
-	CurrentValue = false,
-	Callback = function(Value)
-	DD = Value
-   while DD do wait()
-   game:GetService("ReplicatedStorage").Remotes.HourEgg:FireServer()
-          end
-	end,
+
+Main:AddSection({
+    Name = "Spin"
 })
-
-Tab:CreateSection("Spin")
-
-Tab:CreateToggle({
+Main:AddToggle({
 	Name = "Auto Spin",
-	CurrentValue = false,
+	Default = false,
 	Callback = function(Value)
 	DDa = Value
    while DDa do wait()
@@ -344,2502 +462,374 @@ Tab:CreateToggle({
 
 
 
-Tab:CreateSection("Upgrades")
-Tab:CreateToggle({
-	Name = "Auto Upgrade WalkSpeed",
-	CurrentValue = false,
-	Callback = function(Value)
-	sd = Value
-   while sd do wait()
-local args = {
-    [1] = "Upgrade",
-    [2] = "WalkSpeed",
-}
+local eqbest = game.Players.LocalPlayer.PlayerGui.UI.Pages.Pets.Main.Equip_best
+local mergep = game.Players.LocalPlayer.PlayerGui.UI.Pages.Pets.Main.Main
 
-game:GetService("ReplicatedStorage").Remotes.Upgrades:FireServer(unpack(args))
+local hatch = Window:MakeTab({
+    Name = "Open Egg",
+    Icon = openimg,
+    PremiumOnly = false
+ })
+hatch:AddSection({
+    Name = "Pet"
+})
+
+ hatch:AddToggle({
+	Name = "Auto Equip Best Pet",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		bestpet = Value
+        while bestpet do wait(1)
+            firesignal(eqbest.MouseButton1Click)
           end
 	end,
 })
-Tab:CreateToggle({
-	Name = "Auto Upgrade Storage",
-	CurrentValue = false,
+hatch:AddSection({
+    Name = "Other Open"
+})
+ hatch:AddToggle({
+	Name = "Auto Hatch 30M Egg",
+    Default = false,
+    Save = true,
 	Callback = function(Value)
-	sds = Value
-   while sds do wait()
-local args = {
-    [1] = "Upgrade",
-    [2] = "Storage",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Upgrades:FireServer(unpack(args))
+		o30megg = Value
+        while o30megg do wait()
+            local args = {                
+                [1] = "Hatch1",
+                [2] = "30M",
+                [3] = {
+                },
+            }
+            game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))     
           end
 	end,
 })
-Tab:CreateToggle({
-	Name = "Auto Upgrade x2Hatch",
-	CurrentValue = false,
+hatch:AddToggle({
+	Name = "Auto Hatch Hour Egg",
+	Default = false,
 	Callback = function(Value)
-	sd1 = Value
-   while sd1 do wait()
-local args = {
-    [1] = "Upgrade",
-    [2] = "x2Hatch",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Upgrades:FireServer(unpack(args))
+	DD = Value
+   while DD do wait()
+   game:GetService("ReplicatedStorage").Remotes.HourEgg:FireServer()
           end
 	end,
 })
-Tab:CreateToggle({
-	Name = "Auto Upgrade HatchSpeed",
-	CurrentValue = false,
-	Callback = function(Value)
-	sd2 = Value
-   while sd2 do wait()
-local args = {
-    [1] = "Upgrade",
-    [2] = "HatchSpeed",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Upgrades:FireServer(unpack(args))
-          end
-	end,
-})
-Tab:CreateToggle({
-	Name = "Auto Upgrade WinBoost",
-	CurrentValue = false,
-	Callback = function(Value)
-	sdw = Value
-   while sdw do wait()
-local args = {
-    [1] = "Upgrade",
-    [2] = "WinBoost",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Upgrades:FireServer(unpack(args))
-          end
-	end,
-})
-
-local Tab2 = Window:CreateTab("Fight", 7485051715)
-Tab2:CreateSection("Forest")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl = Value
-   while lvl do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Forest.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl1 = Value
-   while lvl1 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Forest.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl2 = Value
-   while lvl2 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Forest.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl3 = Value
-   while lvl3 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Forest.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl4 = Value
-   while lvl4 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Forest.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-Tab2:CreateSection("Beach")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv1 = Value
-   while lv1 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Beach.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty = Value
-   while ty do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Beach.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df = Value
-   while df do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Beach.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl6 = Value
-   while lvl6 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Beach.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uio = Value
-   while uio do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Beach.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-Tab2:CreateSection("Lava")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv1xc = Value
-   while lv1xc do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Lava.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	tyzx = Value
-   while tyzx do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Lava.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	dfc = Value
-   while dfc do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Lava.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvxl6 = Value
-   while lvxl6 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Lava.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uizo = Value
-   while uizo do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Lava.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-Tab2:CreateSection("Ancient")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv1x = Value
-   while lv1x do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Ancient.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	tyh = Value
-   while tyh do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Ancient.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	dfg = Value
-   while dfg do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Ancient.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl69 = Value
-   while lvl69 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Ancient.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uiio7 = Value
-   while uiio7 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Ancient.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-Tab2:CreateSection("Clouds & Islands")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv155 = Value
-   while lv155 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds["Clouds & Islands"].Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty9 = Value
-   while ty9 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds["Clouds & Islands"].Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df8 = Value
-   while df8 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds["Clouds & Islands"].Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl67 = Value
-   while lvl67 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds["Clouds & Islands"].Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uoo1 = Value
-   while uoo1 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds["Clouds & Islands"].Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-Tab2:CreateSection("Icey")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv132 = Value
-   while lv132 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Icey.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty4 = Value
-   while ty4 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Icey.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df3 = Value
-   while df3 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Icey.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl64 = Value
-   while lvl64 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Icey.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uooo3 = Value
-   while uooo3 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Icey.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-
-Tab2:CreateSection("Space")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	pc = Value
-   while pc do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Space.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty88 = Value
-   while ty888 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Space.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df31 = Value
-   while df31 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Space.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl8764 = Value
-   while lvl8764 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Space.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	u99io3 = Value
-   while u99io3 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Space.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-
-Tab2:CreateSection("Atlantis")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv8132 = Value
-   while lv8132 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Atlantis.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	t3y4 = Value
-   while t3y4 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Atlantis.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	d3f3 = Value
-   while d3f3 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Atlantis.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv4l64 = Value
-   while lv4l64 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Atlantis.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uiio43 = Value
-   while uiio43 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Atlantis.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-
-Tab2:CreateSection("Divine")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lv1342 = Value
-   while lv1342 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Divine.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty44 = Value
-   while ty44 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Divine.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df93 = Value
-   while df93 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Divine.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvlp64 = Value
-   while lvlp64 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Divine.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	o903 = Value
-   while o903 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Divine.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-
-Tab2:CreateSection("Dinosaur")
-
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 1",
-	CurrentValue = false,
-	Callback = function(Value)
-	lav132 = Value
-   while lav132 do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Dinosaur.Levels["Level_1"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 2",
-	CurrentValue = false,
-	Callback = function(Value)
-	ty4aa = Value
-   while ty4aa do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Dinosaur.Levels["Level_2"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 3",
-	CurrentValue = false,
-	Callback = function(Value)
-	df3d = Value
-   while df3d do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Dinosaur.Levels["Level_3"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 4",
-	CurrentValue = false,
-	Callback = function(Value)
-	lvl64as = Value
-   while lvl64as do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Dinosaur.Levels["Level_4"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-Tab2:CreateToggle({
-	Name = "Auto Fight Level 5",
-	CurrentValue = false,
-	Callback = function(Value)
-	uio3asd = Value
-   while uio3asd do wait(0.1)
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = workspace.Map.Worlds.Dinosaur.Levels["Level_5"].Spawner,
-    [2] = 5.373063564300537,
-    [3] = "Simulate",
-}
-
-game:GetService("ReplicatedStorage").Remotes.Push:FireServer(unpack(args))
-          end
-	end,
-})
-
-
-local Tab5 = Window:CreateTab("Auto Open",9194077649)
-Tab5:CreateSection("Gamepass")
-
---Button
-   Tab5:CreateButton({
-   Name = "Free Gamepass (Fast Hatch)",
-   Callback = function()
-   agreedgamepasses()
-   end,
-})
-
-Tab5:CreateSection("Event")
-  Tab5:CreateToggle({
-  Name = "Auto Open 25M Event Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    auto = Value
-    while auto and task.wait() do
-local args = {
-    [1] = "Hatch1",
-    [2] = "25M",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-Tab5:CreateSection("Egg")
-  Tab5:CreateToggle({
-  Name = "Auto Open Basic Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    basic = Value
-    while basic and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Basic",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Devious Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Devious = Value
-    while Devious and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Devious",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Lava Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Lava = Value
-    while Lava and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Lava",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Basic Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    basic = Value
-    while basic and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Basic",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Pirate Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Pirate = Value
-    while Pirate and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Pirate",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Viking Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Viking = Value
-    while Viking and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Viking",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Magma Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Magma = Value
-    while Magma and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Magma",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Icey Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Icey = Value
-    while Icey and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Icey",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Ancient Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Ancient = Value
-    while Ancient and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Ancient",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Egypt Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Egypt = Value
-    while Egypt and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Egypt",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Frost Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Frost = Value
-    while Frost and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Frost",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Snow Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Snow = Value
-    while Snow and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Snow",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Astro Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Astro = Value
-    while Astro and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Astro",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Alien Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Alien = Value
-    while Alien and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Alien",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Ocean Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Ocean = Value
-    while Ocean and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Ocean",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Archangel Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Archangel = Value
-    while Archangel and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Archangel",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Angel Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Angel = Value
-    while Angel and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Angel",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Dino Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Dino = Value
-    while Dino and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Dino",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-  Tab5:CreateToggle({
-  Name = "Auto Open Rocky Egg",
-  CurrentValue = false,
-  Callback = function(Value)
-    Rocky = Value
-    while Rocky and task.wait() do
-function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
-
-local args = {
-    [1] = "Hatch1",
-    [2] = "Rocky",
-    [3] = {
-    },
-}
-
-game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))
-    end
-  end  
-})
-
-
-
-
-
-
-
-
-
-local Universal = Window:CreateTab("Local",10885655986)
-Universal:CreateSection("Misc")
-
-local Button = Universal:CreateButton({
-   Name = "Rejoin",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/mM7JBG5h"))()
-   end,
-})
-
-local Button = Universal:CreateButton({
-   Name = "Reset Character",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/EEY6SATj"))()
-   end,	
-})
-   
-local Button = Universal:CreateButton({
-   Name = "Kick Your Self",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebinp.com/raw/EEY6SATj"))()
-   end,	
-})   
-   
-   
-   		Universal:CreateSection("Local")
-
-
-		local WalkSpeed = 0
-		local JumpPower = 0
-
-	Universal:CreateSlider({
-		Name = "Walk Speed",
-		Range = {
-			0,
-			1000
-		},
-		Increment = 1,
-		Suffix = "Walkspeed",
-		CurrentValue = 25,
-		Flag = "Walk Speed",
-		Callback = function(x)
-			WalkSpeed = x
-			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = x
-		end
-	})
-
-
-	Universal:CreateSlider({
-		Name = "Jump Power",
-		Range = {
-			0,
-			1000
-		},
-		Increment = 1,
-		Suffix = "Jump Power",
-		CurrentValue = 50,
-		Flag = "Jump Power",
-		Callback = function(x)
-			JumpPower = x
-			game.Players.LocalPlayer.Character.Humanoid.JumpPower = x
-		end
-	})
-
-Universal:CreateToggle({
-    Name = "Loop Walk Speed",
-    CurrentValue = false,
-    Flag = "Loop Walk Speed",
-    Callback = function(x)
-        getgenv().LoopWalkspeed = x
-    end
-})
-
-Universal:CreateToggle({
-    Name = "Loop Jump Power",
-    CurrentValue = false,
-    Flag = "Loop Jump Power",
-    Callback = function(x)
-        getgenv().LoopJumpPower = x
-    end
-})
-Universal:CreateSection("Player") 
-Universal:CreateToggle({
-    Name = "Infinite Jump",
-    CurrentValue = false,
-    Flag = "Infinite Jump",
-    Callback = function(x)
-        getgenv().InfiniteJump = x
-    end
-})
-
-
-local Noclip = nil
-local Clip = nil
-
-function noclip()
-	Clip = false
-	local function Nocl()
-		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
-			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
-					v.CanCollide = false
-				end
-			end
-		end
-		wait(0.21) -- basic optimization
-	end
-	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+local eggs ={}
+for _,v in pairs(game.workspace.Map.Eggs:GetChildren()) do
+    table.insert(eggs,v.Name)
 end
-
-function clip()
-	if Noclip then Noclip:Disconnect() end
-	Clip = true
-end
-
-
-
-
-Toggle = Universal:CreateToggle({
-	Name = "Noclip",
-	CurrentValue = false,
-	Callback = function(Value)
-		if Value then
-			noclip()
-		else
-			clip()
-		end
+hatch:AddSection({
+    Name = "Main Open"
+})
+local eggtoopen
+hatch:AddDropdown({
+	Name = "Select to Egg",
+	Options = eggs,
+	Callback = function(Option)
+        eggtoopen = Option
 	end,
 })
 
 
-		Universal:CreateSection("Safety")
-
-		local GroupId = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Creator.CreatorTargetId
-
-		Universal:CreateToggle({
-			Name = "Leave Upon Staff Join",
-			Info = "Kicks you if a player above the group role 1 joins/is in the server",
-			CurrentValue = false,
-			Flag = "Universal-AutoLeave",
-			Callback = function(Value)
-				if Value then
-					for i,v in pairs(game.Players:GetPlayers()) do
-						pcall(function()
-							if v:IsInGroup(GroupId) and v:GetRankInGroup(GroupId) > 1 then
-								AutoRejoin:Set(false)
-								Player:Kick("Detected Staff (Player above group role 1)")
-							end
-						end)
-					end
-				end
-			end,
-		})
-
-		game:GetService("Players").PlayerAdded:Connect(function(v)
-			if Rayfield.Flags["Universal-AutoLeave"].CurrentValue then
-				pcall(function()
-					if v:IsInGroup(GroupId) and v:GetRankInGroup(GroupId) > 1 then
-						AutoRejoin:Set(false)
-						Player:Kick("Detected Staff (Player above group role 1)")
-					end
-				end)
-			end
-		end)
-
-		Universal:CreateSection("Grinding")
-		
-		Universal:CreateButton({
-			Name = "One-Time Server Hop",
-			Callback = function()
-				local Http = game:GetService("HttpService")
-				local TPS = game:GetService("TeleportService")
-				local Api = "https://games.roblox.com/v1/games/"
-
-				local _place,_id = game.PlaceId, game.JobId
-				local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100"
-
-				local function ListServers(cursor)
-					local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-					return Http:JSONDecode(Raw)
-				end
-
-				local Next; repeat
-					local Servers = ListServers(Next)
-					for i,v in next, Servers.data do
-						if v.playing < v.maxPlayers and v.id ~= _id then
-							local s,r = pcall(TPS.TeleportToPlaceInstance,TPS,_place,v.id,Player)
-							if s then break end
-						end
-					end
-
-					Next = Servers.nextPageCursor
-				until not Next
-			end,
-		})
-		
-		Universal:CreateToggle({
-			Name = "Server Hop",
-			Info = "Automatically server hops after the interval",
-			CurrentValue = false,
-			Flag = "Universal-ServerHop",
-			Callback = function(Value)	end,
-		})
-		
-		Universal:CreateSlider({
-			Name = "Server Hop Intervals",
-			Info = "Sets the interval in seconds for the Server Hop",
-			Range = {5, 600},
-			Increment = 1,
-			CurrentValue = 5,
-			Flag = "Universal-ServerhopIntervals",
-			Callback = function(Value)	end,
-		})
-		
-		task.spawn(function()
-			while task.wait(Rayfield.Flags["Universal-ServerhopIntervals"].CurrentValue) do
-				if Rayfield.Flags["Universal-ServerHop"].CurrentValue then
-					local Http = game:GetService("HttpService")
-					local TPS = game:GetService("TeleportService")
-					local Api = "https://games.roblox.com/v1/games/"
-
-					local _place,_id = game.PlaceId, game.JobId
-					local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100"
-					
-					local function ListServers(cursor)
-						local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-						return Http:JSONDecode(Raw)
-					end
-
-					local Next; repeat
-						local Servers = ListServers(Next)
-						for i,v in next, Servers.data do
-							if v.playing < v.maxPlayers and v.id ~= _id then
-								local s,r = pcall(TPS.TeleportToPlaceInstance,TPS,_place,v.id,Player)
-								if s then break end
-							end
-						end
-
-						Next = Servers.nextPageCursor
-					until not Next
-				end
-			end
-		end)
-
-
-local Speed=50;
-local UIS=game:GetService("UserInputService")local OnRender=game:GetService("RunService").RenderStepped;local Player=game:GetService("Players").LocalPlayer;local Character=Player.Character or Player.CharacterAdded:Wait()local Camera=workspace.CurrentCamera;local Root=Character:WaitForChild("HumanoidRootPart")local C1,C2,C3;local Nav={Flying=false,Forward=false,Backward=false,Left=false,Right=false}C1=UIS.InputBegan:Connect(function(Input)if getgenv()["Fly | E"] then if Input.UserInputType==Enum.UserInputType.Keyboard then if Input.KeyCode==Enum.KeyCode.E then Nav.Flying=not Nav.Flying;Root.Anchored=Nav.Flying elseif Input.KeyCode==Enum.KeyCode.W then Nav.Forward=true elseif Input.KeyCode==Enum.KeyCode.S then Nav.Backward=true elseif Input.KeyCode==Enum.KeyCode.A then Nav.Left=true elseif Input.KeyCode==Enum.KeyCode.D then Nav.Right=true end end end end)C2=UIS.InputEnded:Connect(function(Input)if Input.UserInputType==Enum.UserInputType.Keyboard then if Input.KeyCode==Enum.KeyCode.W then Nav.Forward=false elseif Input.KeyCode==Enum.KeyCode.S then Nav.Backward=false elseif Input.KeyCode==Enum.KeyCode.A then Nav.Left=false elseif Input.KeyCode==Enum.KeyCode.D then Nav.Right=false end end end)C3=Camera:GetPropertyChangedSignal("CFrame"):Connect(function()if Nav.Flying then Root.CFrame=CFrame.new(Root.CFrame.Position,Root.CFrame.Position+Camera.CFrame.LookVector)end end)task.spawn(function()while true do local Delta=OnRender:Wait()if Nav.Flying then if Nav.Forward then Root.CFrame=Root.CFrame+(Camera.CFrame.LookVector*(Delta*Speed))end;if Nav.Backward then Root.CFrame=Root.CFrame+(-Camera.CFrame.LookVector*(Delta*Speed))end;if Nav.Left then Root.CFrame=Root.CFrame+(-Camera.CFrame.RightVector*(Delta*Speed))end;if Nav.Right then Root.CFrame=Root.CFrame+(Camera.CFrame.RightVector*(Delta*Speed))end end end end)
-Universal:CreateSection("Fly") 
-Universal:CreateToggle({
-    Name = "Fly | E",
-    CurrentValue = false,
-    Flag = "Fly | E",
-    Callback = function(x)
-        getgenv()["Fly | E"] = x
-        if x == false then
-            for i,v in next, Nav do
-                v = false
-            end
-            Root.Anchored = false
-        end
-    end
+local openegg
+hatch:AddToggle({
+	Name = "Open Egg",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		openegg = Value
+        if Value then
+            spawn(function()
+                openegg_func()
+            end)
+          end
+	end,
 })
 
-Universal:CreateSlider({
-    Name = "Fly Speed",
-    Range = {0, 1000},
+local howmuch
+    hatch:AddSlider({
+    Name = "How many opens?",
+    Min = 0,
+    Max = 12,
+    Default = 1,
+    Color = Color3.fromRGB(255,255,255),
     Increment = 1,
-    Suffix = "Fly Speed",
-    CurrentValue = 25,
-    Flag = "Fly Speed",
-    Callback = function(x)
-        Speed = x
-    end,
+    ValueName = "/s",
+    Callback = function(dly1)
+    howmuch = dly1
+    end  
 })
 
-game:GetService("UserInputService").InputBegan:Connect(function(x)
-    if not getgenv().InfiniteJump then return end
-    if x.KeyCode == Enum.KeyCode.Space then
-        game.Players.LocalPlayer.Character.Humanoid:ChangeState(3)
-    end
-end)
+hatch:AddButton({
+	Name = "Tp Egg",
+	Callback = function(Value)
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Map.Eggs[eggtoopen]["Neon"].CFrame * CFrame.new(0,0,5)
+	end,
+})
 
-game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-    if not getgenv().LoopWalkspeed then return end
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
-end)
+local ht = "Hatch"
 
-game.Players.LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-    if not getgenv().LoopJumpPower then return end
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = JumpPower
-end)
-
-Universal:CreateSection("Fake")   
-local pingfaker = 0
-
-local Button = Universal:CreateButton({
-   Name = "0 Ping Visual",
-   Callback = function(bool)
-        _G.pingvis = bool
-        game:GetService("RunService").Heartbeat:Connect(function()
-            if _G.pingvis == true then
-                game:GetService("ReplicatedStorage").Events.UpdatePing:FireServer(0)
+function openegg_func()
+    spawn(function()
+        while wait(0.1) and openegg do
+            local args = {
+                [1] = ht .. howmuch,
+                [2] = eggtoopen,
+                [3] = {
+                },
+            }
+            game:GetService("ReplicatedStorage").Remotes.Hatch:FireServer(unpack(args))     
         end
-      end)
-   end,
-})
-
-Universal:CreateSection("Anti")
-		Universal:CreateToggle({
-			Name = "Anti-AFK",
-			CurrentValue = false,
-			Flag = "Universal-AntiAFK",
-			Callback = function(Value)
-				if Value then
-					local VirtualUser = game:GetService("VirtualUser")
-					Player.Idled:Connect(function()
-						VirtualUser:CaptureController()
-						VirtualUser:ClickButton2(Vector2.new())
-					end)
-				end
-			end,
-		})
-		
-		
-		local players = game:GetService("Players"):GetPlayers()
-		Universal:CreateToggle({
-			Name = "Anti-Kick",
-			CurrentValue = false,
-			Flag = "Universal-Anti-Kick",
-			Callback = function(Value)
-        _G.antikickes = Value;
-        while _G.antikickes == true do
-            if #players > 1 then
-                local randomPlayer
-                repeat
-                    randomPlayer = players[math.random(#players)]
-                until randomPlayer ~= LocalPlayer
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-                game:GetService("ReplicatedStorage").Events.Vote:FireServer(randomPlayer.Name)
-
-            end
-            task.wait(0)
-            end
-			end,
-		})
-		
-		Universal:CreateSection("Game")
-		Universal:CreateToggle({
-			Name = "Auto Rejoin",
-			CurrentValue = false,
-			Flag = "Universal-AutoRejoin",
-			Callback = function(Value)
-				if Value then
-					repeat task.wait() until game.CoreGui:FindFirstChild('RobloxPromptGui')
-
-					local lp,po,ts = game:GetService('Players').LocalPlayer,game.CoreGui.RobloxPromptGui.promptOverlay,game:GetService('TeleportService')
-
-					po.ChildAdded:connect(function(a)
-						if a.Name == 'ErrorPrompt' then
-							while true do
-								ts:Teleport(game.PlaceId)
-								task.wait(2)
-							end
-						end
-					end)
-				end
-			end,
-		})
-
-		Universal:CreateToggle({
-			Name = "Auto Re-Execute",
-			CurrentValue = false,
-			Flag = "Universal-AutoRe-Execute",
-			Callback = function(Value)
-				if Value then
-					local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-
-					if queueteleport then
-						queueteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/vabalata1/L-HUB/main/L-HUB"))()')
-					end
-				end
-			end,
-		})
-		
-		Universal:CreateSection("Animation")
-			Universal:CreateToggle({
-			Name = "Remove Anims1 (V1)",
-			CurrentValue = false,
-			Flag = "Remove Anims1",
-			Callback = function(bool)
-     _G.Anims1 = bool
-
-    while _G.Anims1 == true do
-        local localPlayer = game.Players.LocalPlayer
-        if localPlayer then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            for _, descendant in ipairs(workspace:GetDescendants()) do
-                if descendant:IsDescendantOf(character) and descendant.Name == "Animate" then
-                    descendant:Destroy()
-                end
-            end
-            task.wait(5)
-        end
-    end
-			end,
-		})
-			Universal:CreateToggle({
-			Name = "Remove Anims2 (Blatant + Buggy)",
-			CurrentValue = false,
-			Flag = "Remove Anims2",
-			Callback = function(bool)
-    _G.Anims2 = bool
-
-    while _G.Anims2 == true do
-        local localPlayer = game.Players.LocalPlayer
-        if localPlayer then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            for _, descendant in ipairs(workspace:GetDescendants()) do
-                if descendant:IsDescendantOf(character) and descendant.Name == "Humanoid" and
-                    descendant:FindFirstChild("Animator") then
-                    descendant.Animator:Destroy()
-                end
-            end
-            task.wait(5)
-        end
-    end
-			end,
-		})	
-		
-    local animspeed = 1
-	Universal:CreateSlider({
-		Name = "Animation Speed",
-		Range = {
-			0,
-			300
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 0,
-		Flag = "Animation Speed",
-		Callback = function(value)
-		animspeed = value
-		end
-	})
-    
-    local animspeedup = 1
-    	Universal:CreateSlider({
-		Name = "Animation Update Speed",
-		Range = {
-			0,
-			15
-		},
-		Increment = 1,
-		Suffix = "",
-		CurrentValue = 0,
-		Flag = "Animation Update Speed",
-		Callback = function(value)
-		animspeedup = value
-		end
-	})
-	
-	
-		    Universal:CreateToggle({
-			Name = "Enable Animation Speed",
-			CurrentValue = false,
-			Flag = "Enable Animation Speed",
-			Callback = function(bool)
-     _G.AutoAnimsSpeed = bool
-    while task.wait(animspeedup) and _G.AutoAnimsSpeed == true 
-    do
-       if game:GetService("Players").LocalPlayer.Character and
-       game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid") then
-   Char = game:GetService("Players").LocalPlayer.Character
-   Hum = Char:FindFirstChildOfClass("Humanoid") or Char:FindFirstChildOfClass("AnimationController")
-   for i, v in next, Hum:GetPlayingAnimationTracks() do
-       v:AdjustSpeed(animspeed)
-   end
-end
-end
-			end,
-		})	
-		
-		Universal:CreateSection("Animation 2 (Working)")
-Universal:CreateButton({
-	Name = "Cartony",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=742637544"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=742638445"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=742640026"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=742638842"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=742637942"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=742636889"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=742637151"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Vampire",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=1083445855"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=1083450166"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=1083473930"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=1083462077"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=1083455352"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=1083439238"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=1083443587"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Astronaut",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=891621366"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=891633237"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=891667138"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=891636393"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=891627522"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=891609353"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=891617961"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Bubbly",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=910004836"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=910009958"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=910034870"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=910025107"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=910016857"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=910001910"
-        Animate.swimidle.SwimIdle.AnimationId = "http://www.roblox.com/asset/?id=910030921"
-        Animate.swim.Swim.AnimationId = "http://www.roblox.com/asset/?id=910028158"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Elder",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=845397899"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=845400520"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=845403856"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=845386501"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=845398858"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=845392038"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=845396048"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Knight",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=657595757"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=657568135"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=657552124"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=657564596"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=658409194"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=658360781"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=657600338"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Levitation",
-    Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616006778"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616008087"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616013216"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616010382"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616008936"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616003713"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616005863"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Mage",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=707742142"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=707855907"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=707897309"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=707861613"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=707853694"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=707826056"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=707829716"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Ninja",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=656117400"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=656118341"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=656121766"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=656118852"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=656117878"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=656114359"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=656115606"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Pirate",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=750781874"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=750782770"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=750785693"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=750783738"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=750782230"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=750779899"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=750780242"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Robot",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616088211"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616089559"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616095330"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616091570"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616090535"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616086039"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616087089"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Stylish",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616136790"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616138447"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616146177"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616140816"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616139451"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616133594"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616134815"
-    end
-})
-
-Universal:CreateButton({
-	Name = "SuperHero",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616111295"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616113536"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616122287"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616117076"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616115533"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616104706"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616108001"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Toy",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=782841498"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=782845736"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=782843345"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=782842708"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=782847020"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=782843869"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=782846423"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Werewolf",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=1083195517"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=1083214717"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=1083178339"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=1083216690"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=1083218792"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=1083182000"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=1083189019"
-    end
-})
-
-Universal:CreateButton({
-	Name = "Zombie",
-	Callback = function()
-        local Animate = game.Players.LocalPlayer.Character.Animate
-        Animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=616158929"
-        Animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=616160636"
-        Animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=616168032"
-        Animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=616163682"
-        Animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=616161997"
-        Animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=616156119"
-        Animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=616157476"
-    end
-})
-		
-	Universal:CreateSection("TP Tool")
-		    Universal:CreateButton({
-			Name = "Click TP Tool",
-			Callback = function(bool)
-     mouse = game.Players.LocalPlayer:GetMouse()
-    tool = Instance.new("Tool")
-    tool.RequiresHandle = false
-    tool.Name = "Teleport (Perfectus)"
-    tool.Activated:connect(function()
-        local pos = mouse.Hit + Vector3.new(0, 2.5, 0)
-        pos = CFrame.new(pos.X, pos.Y, pos.Z)
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
     end)
-    tool.Parent = game.Players.LocalPlayer.Backpack
-   end,	
-}) 
-
-
-	
-Universal:CreateSection("Trigger")
-local TriggerBotEnabled = false
-local TriggerBotTeamCheck = false
-local Delay = 50	
-	
-	
-local ToggleTriggerBot = Universal:CreateToggle({
-			Name = "Enable Triggerbot",
-			CurrentValue = false,
-			Flag = "Universal-AutossRe-Execute",
-			Callback = function(bool)
-           TriggerBotEnabled = bool
-   end,	
-}) 	
-	
-local ToggleTeamCheck = Universal:CreateToggle({
-			Name = "Team Check",
-			CurrentValue = false,
-			Flag = "Universal-AutoRe-Execuaate",
-			Callback = function(bool)
-            TriggerBotTeamCheck = bool
-   end,	
-}) 		
-	
-	
-local TriggerBotDistance = math.huge	
-	
-	Universal:CreateSlider({
-		Name = "Distance",
-		Range = {
-			0,
-			5000
-		},
-		Increment = 1,
-		Suffix = "Distance",
-		CurrentValue = 25,
-		Flag = "Distance",
-		Callback = function(value)
-        TriggerBotDistance = value * 5.4321
-		end
-	})	
-	
-local Slider3 =	Universal:CreateSlider({
-		Name = "Clicking Delay Intervals",
-		Range = {
-			0,
-			2500
-		},
-		Increment = 1,
-		Suffix = "Clicking Delay",
-		CurrentValue = 25,
-		Flag = "Clicking Delay",
-		Callback = function(value)
-        Delay = value / 2500
-		end
-	})		
-	
-function TriggerTeamCheck(v)
-    if TriggerBotTeamCheck then
-        if v.TeamColor ~= game.Players.LocalPlayer.TeamColor then
-            return true
-        else
-            return false
-        end
-    else
-        return true
-    end
 end
 
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait() and Players.LocalPlayer
-local mouse = lp:GetMouse()
+local p = game.Players.LocalPlayer.PlayerGui.UI.Pages
 
-function gettarget(instance)
-    if not instance then
-        return false
-    end
-    for i, v in next, Players:GetPlayers() do
-        if TriggerTeamCheck(v) and TriggerBotEnabled then
-            if v.Character and (instance == v.Character or instance:IsDescendantOf(v.Character)) then
-                if v.Character:FindFirstChild("Head") or (lp.Character and lp.Character:FindFirstChild("Head")) then
-                    local distance = (v.Character.Head.Position - lp.Character.Head.Position).magnitude
-                    if distance <= TriggerBotDistance then
-                        return true
-                    else
-                        return false
-                    end
-                end
-            end
-        end
-    end
-    return false
+local ggui = Window:MakeTab({
+    Name = "GUI",
+    Icon = guiimg,
+    PremiumOnly = false
+ }) 
+
+local gui = {}
+for _,v in pairs(p:GetChildren()) do
+    table.insert(gui,v.Name)
 end
 
-local function triggerbot()
-    local target = mouse.Target
-    if target and gettarget(target) then
-        local character = target.Parent
-        if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-            mouse1press()
-            task.wait(Delay)
-            mouse1release()
-        end
-    else
-        return false
-    end
-end
-
-local con = game:GetService("RunService").Heartbeat:Connect(triggerbot)
-
-local AimEnabled = false
-local AimTeamCheck = true
-local ASWallCheck = true
-local ShowFov = false
-local HorizontalSmoothness = 10
-local VerticalSmoothness = 10
-local FOVRadius3 = 50
-local BodyHitbox = "HumanoidRootPart"
-local WallCheckOrigin = "Camera"
-local Origin = "Camera"
-
-local Prediction = false
-local PredictionAmount = 0
-local BackTracing = false
-task.wait(0.5)
-
-Universal:CreateSection("Aim")
-local AimbotToggle = Universal:CreateToggle({
-    Name = "Enable Aim Assist",
-    CurrentValue = false,
-    Flag = "Loop Walk Speeda",
-    Callback = function(bool)
-    AimEnabled = bool
-    end
-})
-
-local TAimPart = "HumanoidRootPart"
-
-local HitPartDropdown = Universal:CreateDropdown({
-	Name = "Target Hit Part",
-	Options = {"Head", "UpperTorso", "LowerTorso", "HumanoidRootPart", "RightUpperLeg", "LeftHand", "RightHand", "LeftLowerArm",
-    "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg", "LeftUpperLeg", "RightFoot",
-    "RightLowerLeg"},
-	CurrentOption = "",
-	Flag = "Stara",
-	Callback = function(hitpart, bool)
-           TAimPart = hitpart
-        if TAimPart == "Head" then
-            BodyHitbox = "Head"
-        elseif TAimPart == "UpperTorso" then
-            BodyHitbox = "UpperTorso"
-        elseif TAimPart == "LowerTorso" then
-            BodyHitbox = "LowerTorso"
-        elseif TAimPart == "RightUpperLeg" then
-            BodyHitbox = "RightUpperLeg"
-        elseif TAimPart == "LeftHand" then
-            BodyHitbox = "LeftHand"
-        elseif TAimPart == "RightHand" then
-            BodyHitbox = "RightHand"
-        elseif TAimPart == "LeftLowerArm" then
-            BodyHitbox = "LeftLowerArm"
-        elseif TAimPart == "RightLowerArm" then
-            BodyHitbox = "RightLowerArm"
-        elseif TAimPart == "LeftUpperArm" then
-            BodyHitbox = "LeftUpperArm"
-        elseif TAimPart == "RightUpperArm" then
-            BodyHitbox = "RightUpperArm"
-        elseif TAimPart == "LeftFoot" then
-            BodyHitbox = "LeftFoot"
-        elseif TAimPart == "LeftLowerLeg" then
-            BodyHitbox = "LeftLowerLeg"
-        elseif TAimPart == "LeftUpperLeg" then
-            BodyHitbox = "LeftUpperLeg"
-        elseif TAimPart == "RightFoot" then
-            BodyHitbox = "RightFoot"
-        elseif TAimPart == "RightLowerLeg" then
-            BodyHitbox = "RightLowerLeg"
-        end
-	end,
-})
-Universal:CreateSection("Checker")
-local ASTeamCheck = Universal:CreateToggle({
-    Name = "Team Check",
-    CurrentValue = false,
-    Flag = "Team Check",
-    Callback = function(bool)
-    AimTeamCheck = bool
-    end
-})
-
-local ASWallCheckToggle = Universal:CreateToggle({
-    Name = "Wall Check",
-    CurrentValue = false,
-    Flag = "Wall Check",
-    Callback = function(bool)
-    ASWallCheck = bool
-    end
-})
-Universal:CreateSection("Teleport")
-local TeleportPlayerType = "MoveTo"
-
-local HitPartDropdown = Universal:CreateDropdown({
-	Name = "Player Teleport Type",
-	Options = {"MoveTo", "CFrame", "PivotTo"},
-	CurrentOption = "",
-	Flag = "Player Teleport Type",
-	Callback = function(TeleportType, bool)
-    TeleportPlayerType = tostring(TeleportType)
+local openthegui
+ggui:AddDropdown({
+	Name = "Select to Gui",
+	Options = gui,
+	Callback = function(Option)
+        openthegui = Option
 	end,
 })
 
-Universal:CreateButton({
-    Name = "Teleport to 0,0,0",
-    CurrentValue = false,
-    Flag = "Teleport to 0,0,0",
-    Callback = function()
-       if TeleportPlayerType == "MoveTo" then
-        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(0, 0, 0))
-    elseif TeleportPlayerType == "CFrame" then
-        game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(0, 0, 0)
-    elseif TeleportPlayerType == "PivotTo" then
-        game.Players.LocalPlayer.Character:PivotTo(0, 0, 0)
-    end
-    end
-})
-local XAxis = 0
-
-	Universal:CreateSlider({
-		Name = "X Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 5,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "X Axis",
-		Callback = function(value)
-        XAxis = value
-		end
-	})
-	
-local YAxis = 0
-	Universal:CreateSlider({
-		Name = "Y Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 5,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Y Axis",
-		Callback = function(value)
-      YAxis = value
-		end
-	})
-
-local ZAxis = 0
-	Universal:CreateSlider({
-		Name = "Z Axis",
-		Range = {
-			-25000,
-			25000
-		},
-		Increment = 5,
-		Suffix = "",
-		CurrentValue = 25,
-		Flag = "Z Axis",
-		Callback = function(value)
-        ZAxis = value
-		end
-	})
-Universal:CreateButton({
-    Name = "Teleport to Axis",
-    CurrentValue = false,
-    Flag = "Teleport to Axis",
-    Callback = function()
-   if TeleportPlayerType == "MoveTo" then
-        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(XAxis, YAxis, ZAxis))
-    elseif TeleportPlayerType == "CFrame" then
-        game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(XAxis, YAxis, ZAxis)
-    elseif TeleportPlayerType == "PivotTo" then
-        game.Players.LocalPlayer.Character:PivotTo(XAxis, YAxis, ZAxis)
-
-    end
-    end
+ggui:AddToggle({
+	Name = "Open Selected Gui",
+    Default = false,
+	Callback = function(Value)
+		opengui = Value
+        if Value then
+            spawn(function()
+                opengui_func()
+            end)
+        end
+	end,
 })
 
+ggui:AddToggle({
+	Name = "Close Selected Gui",
+    Default = false,
+	Callback = function(Value)
+		opengui2 = Value
+        if Value then
+            spawn(function()
+                opengui_func2()
+            end)
+        end
+	end,
+})
 
-local Tabss = Window:CreateTab(name2,11323675691)
-
-local Labelaa = Tabss:CreateSection("Perfectus Hub Updates")
-
-Tabss:CreateParagraph({Title = "Update 2", Content = "Fixed Dumbell Equip, Claim UGC, 25M Event Egg Added"})
-
-Tabss:CreateParagraph({Title = "Update 1", Content = "New Script"})
-
-while wait() do
---refresh
+function opengui_func()
+    spawn(function()
+    p[openthegui].Open.Value = true
+    end)
 end
 
-while wait() do 
-print("perfectus hub")
+function opengui_func2()
+    spawn(function()
+        p[openthegui].Open.Value = false
+    end)
 end
+
+
+local Player = Window:MakeTab({
+    Name = "Local Player",
+    Icon = universalimg,
+    PremiumOnly = false
+})
+Player:AddParagraph("Local Player ","Speed ")
+Player:AddSlider({
+    Name = "Walkspeed",
+    Min = 0,
+    Max = 500,
+    Default = 50,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Speeds",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+
+    end  
+})
+Player:AddSlider({
+    Name = "JumpPower",
+    Min = 0,
+    Max = 500,
+    Default = false,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Powers",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
+    end  
+})
+local misc = Window:MakeTab({
+    Name = "Misc",
+    Icon = settingimg,
+    PremiumOnly = false
+ })
+misc:AddSection({
+    Name = "Server Misc"
+})
+misc:AddParagraph("Anti Afk NOTIFICATION"," Script Will Auto anti afk when you excute  !")
+ function antiAFK()
+    player.Idled:Connect(function()
+        VU:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        VU:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end)
+end
+    antiAFK()
+function CopyjobID()
+    local JobId = game.JobId
+
+    setclipboard(JobId)
+end
+local whitescreen = false
+misc:AddToggle({
+    Name = "White Screen ",
+    Default = false,
+    Callback = function (tooglestate)
+        whitescreen = tooglestate
+if whitescreen == true then
+        game:GetService("RunService"):Set3dRenderingEnabled(false)
+        elseif whitescreen == false  then
+            game:GetService("RunService"):Set3dRenderingEnabled(true)
+
+    end
+end
+
+})
+
+misc:AddButton({
+    Name = "Hop Sever ",
+    Default = false,
+    Callback = function()
+        local Player = game.Players.LocalPlayer    
+        local Http = game:GetService("HttpService")
+        local TPS = game:GetService("TeleportService")
+        local Api = "https://games.roblox.com/v1/games/"
+
+        local _place,_id = game.PlaceId, game.JobId
+        local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=10"
+        function ListServers(cursor)
+           local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+           return Http:JSONDecode(Raw)
+        end
+
+        time_to_wait = 3 
+        while wait(time_to_wait) do
+           Player.Character.HumanoidRootPart.Anchored = true
+           local Servers = ListServers()
+           local Server = Servers.data[math.random(1,#Servers.data)]
+           TPS:TeleportToPlaceInstance(_place, Server.id, Player)
+        end
+            perfectushub:MakeNotification({
+                Name = "success Copy",
+                Content = "Copy Your JobID",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+   end
+})
+misc:AddButton({
+    Name = "Copy JobID Sever",
+    Default = false,
+    Callback = function()
+            CopyjobID()
+            perfectushub:MakeNotification({
+                Name = "success Copy",
+                Content = "Copy Your JobID",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+   end
+})
+misc:AddTextbox({
+    Name = "Type Your JobID And Enter",
+    Default = false,
+    TextDisappear = true,
+    Callback = function(vew)
+        Players = game:GetService("Players")
+
+        PlaceId, JobId = game.PlaceId, vew  
+TeleportService = game:GetService("TeleportService")
+TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+    end	  
+})
+
+ misc:AddSection({
+    Name = "Save + Load Config"
+})
+
+
+    misc:AddButton({
+    Name = "Save ConFig !",
+    Callback = function()
+     perfectushub:SaveCfg("perfectushub")
+            perfectushub:MakeNotification({
+                Name = "Success Save ConFig",
+                Content = "If you want use this config just load it",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+      end    
+})
+misc:AddButton({
+    Name = "Load ConFig !",
+    Callback = function()
+        perfectushub:Init()
+      end    
+})
+local dc = Window:MakeTab({
+    Name = "Discord",
+    Icon = discordimg,
+    PremiumOnly = false
+ })
+	dc:AddParagraph("Click To Copy Link Discord", "Perfectus Hub")
+	dc:AddButton({
+		Name = "Copy Discord Link",
+		Callback = function()
+			local serverLink = "https://discord.gg/RVnjYRWNA9" -- Thay xxxxxxxxxx bằng mã link server Discord của bạn
+			setclipboard(serverLink) 
+			local success = true
+			if success then
+				perfectushub:MakeNotification({
+					Name = "Copy To clipboard",
+					Content = "Let Join DISCORD SEVER ( Perfectus Hub | COMMUNITY )",
+					Image = "rbxassetid://14887567417",
+					Time = 5
+				})
+			end
+		end
+	})   
+
+local Tabss = Window:MakeTab({
+    Name = "Updates",
+    Icon = perfectuslogo,
+    PremiumOnly = false
+ })
+
+Tabss:AddSection({
+    Name = "Perfectus Hub Updates"
+})
+
+Tabss:AddParagraph("Update 1", "New UI, Added Auto Fight System, Added Auto Egg System, Added Welcome Tab and Stats, Added Gui Open and more...")
+
+
 
 client.Gamepasses.FastPush.Value = true
 client.Gamepasses.VIP.Value = true
@@ -2847,6 +837,13 @@ client.GameStats.InGroup = true
 client.GameStats.SkipAll = true
 client.GameStats.Verified = true
 
+perfectushub:Init()
 
 
-Rayfield:LoadConfiguration()
+wait(1)
+
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loaded", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
