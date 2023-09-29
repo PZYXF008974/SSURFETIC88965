@@ -1,22 +1,61 @@
 repeat wait() until game:IsLoaded()
-game:GetService("StarterGui"):SetCore("SendNotification",{ 
+game:GetService("StarterGui"):SetCore("SendNotification",{
 	Title = "Perfectus Hub", -- Required
 	Text = "Loading Hub", -- Required
 	Icon = "rbxassetid://14887567417" -- Optional
 })
 wait(0.1)
 
+    getgenv().AutoSaveSettings = {
+        Mode = "",
+        Teleport = false,
+        Attack = false,
+        Click = false,
+        Collects = false,
+        FarmQuests = false,
+        AutoTeleportRaid  = false,
+        AutoTeleportRaidRumbling = false,
+        AutoFarmRaidNamek = false,
+        AutoFarmRaidRumbling = false,
+
+    }
+
+local mainimg = "rbxassetid://7539983773"
+local openimg = "rbxassetid://9194077649"
+local guiimg = "rbxassetid://4458888115"
+local dungeonimg = "rbxassetid://6730262023"
+local teleportimg = "rbxassetid://6723742952"
+local universalimg = "rbxassetid://10885655986"
+local perfectuslogo = "rbxassetid://14887567417"
+local farmingimg = "rbxassetid://7485051715"
+local statsimg = "rbxassetid://14377123173"
+local settingimg = "rbxassetid://11446835336"
+local discordimg = "rbxassetid://1461403871"
+
 local perfectushub = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Binintrozza/GUI-SCRIPT/main/GUI_NEW.lua')))()
+
 if game.PlaceId == 14433762945 then
+    
     local MarketplaceService = game:GetService("MarketplaceService")
-local placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+
+    local placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    
     local Window = perfectushub:MakeWindow({Name = "Perfectus Hub      "..placeName, HidePremium = false, SaveConfig = true, IntroEnabled = true, IntroText = "Perfectus Hub", IntroIcon = "rbxassetid://14887567417",Intro ="rbxassetid://14887567417" , ConfigFolder = "Perfectus hub"})
-    local Main = Window:MakeTab({
-        Name = "Main",
-        Icon = "rbxassetid://14887567417",
+    
+    local Welcome = Window:MakeTab({
+        Name = "Welcome",
+        Icon = statsimg,
         PremiumOnly = false
     }) 
-    local HS = game:GetService("HttpService")
+
+    local Main = Window:MakeTab({
+        Name = "Main",
+        Icon = mainimg,
+        PremiumOnly = false
+    }) 
+   
+
+local HS = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
 local WS = game:GetService("Workspace")
 local P = game:GetService("Players")
@@ -36,7 +75,13 @@ local IGNORED_WORLDS = {"Raid","Tower"}
 local worldData = require(RS.ModuleScripts.Config.WorldData)
 local client = game.Players.LocalPlayer
 local currentworld = client.World.Value
+local workspace = workspace
+local huge = math.huge
+local Remotes = game:GetService("ReplicatedStorage").Remote
 
+local HumanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+
+local ChildAdded = false
 --hatch 
 local mobs = {}
 _G.disabled = false
@@ -166,9 +211,116 @@ end)
 
 
 
+    Welcome:AddLabel("Welcome "..game.Players.LocalPlayer.DisplayName)
+    
+    local Time = Welcome:AddLabel("Server Time")
+    function UpdateTime()
+    local GameTime = math.floor(workspace.DistributedGameTime+0.5)
+    local Hour = math.floor(GameTime/(60^2))%24
+    local Minute = math.floor(GameTime/(60^1))%60
+    local Second = math.floor(GameTime/(60^0))%60
+    Time:Set("Game Time : Hours : "..Hour.." Minutes : "..Minute.." Seconds : "..Second)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime()
+    end)
+    end
+    end)
+    
+    Client = Welcome:AddLabel("Client")
+    
+    function UpdateClient()
+    local Fps = workspace:GetRealPhysicsFPS()
+    Client:Set("Fps : "..Fps)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient()
+    end
+    end)
+    
+    Client1 = Welcome:AddLabel("Client")
+    
+    function UpdateClient1()
+    local Ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    Client1:Set("Ping : "..Ping)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient1()
+    end
+    end)
+    
+    local Thanksforreport = Welcome:AddLabel("Report Bug")
 
-
-
+    local ReportBugs = nil
+    Welcome:AddTextbox({
+	Name = "Text Report Bug",
+	Default = "Here",
+	TextDisappear = false,
+	Callback = function(value)
+	ReportBugstext = value
+	end	  
+})
+    
+   
+    local url = "https://discord.com/api/webhooks/1157214783897096202/wp7MmLOgCDCacfmm8R90V3t0EiWpCKZc5RkD67ZlasLg0xfS4QB6aqnANXzSAMXT1e72"
+    Welcome:AddButton({
+	Name = "Enter",
+	Callback = function()
+       Thanksforreport:Set("Thank You For Reported Bugs")
+        wait(5)
+        Thanksforreport:Set("Report Bug")
+    local data = {
+        ["username"] = 'Perfectus',
+        ['content'] = '',
+        ["avatar_url"] = "",
+        ["embeds"] = {
+            {
+                ["description"] = "**Bug Reporting Webhook**",
+                ["color"] = tonumber(255), -- color id		
+                ["type"] = "rich",
+                ["fields"] =  {
+                    {
+                        ["name"] = "Hwid",
+                        ["value"] = '```lua'..'\n'..game:GetService("RbxAnalyticsService"):GetClientId()..'\n```',
+                    },
+                    {
+                        ["name"] = "Username",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.Name..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Display Name",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.DisplayName..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Reported Bug",
+                        ["value"] = '```lua'..'\n'..ReportBugstext..'\n```',
+                        ["inline"] = false
+                    }
+                },
+                ["footer"] = {
+                    ["text"] = "Reported Bug",
+                },
+                ["timestamp"] = DateTime.now():ToIsoDate(),
+            }
+        },
+    }
+    local newdata = game:GetService("HttpService"):JSONEncode(data)
+    local headers = {["content-type"] = "application/json"}
+    request = http_request or request or HttpPost or syn.request
+    local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+    request(abcdef)
+    
+    end,
+})
 
 Main:AddSection({
     Name = " Auto Farm"
@@ -412,7 +564,7 @@ local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").R
 })
 local hatch = Window:MakeTab({
     Name = "Open Orbs",
-    Icon = "rbxassetid://14887567417",
+    Icon = openimg,
     PremiumOnly = false
  })
 
@@ -482,10 +634,280 @@ game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args
     end)
 end
 
+local dn = Window:MakeTab({
+    Name = "Raid",
+    Icon = dungeonimg,
+    PremiumOnly = false
+ }) 
+
+local rd = {}
+for _,v in pairs(game:GetService("ReplicatedStorage").UnloadedWorlds:GetChildren()) do
+    table.insert(rd,v.Name)
+end
+
+local selectedsworld
+dn:AddDropdown({
+	Name = "Select to World",
+	Options = rd,
+	Callback = function(Option)
+        selectedsworld = Option
+	end,
+})
+
+local dif = {"Easy","Medium","Hard"}
+
+local selecteddifficult
+dn:AddDropdown({
+	Name = "Select to Difficult",
+	Options = dif,
+	Callback = function(Option)
+        selecteddifficult = Option
+	end,
+})
+
+local rmms = {"Room1","Room2","Room3","Room4"}
+
+local dngn
+dn:AddDropdown({
+	Name = "Select Room Numbers",
+	Options = rmms,
+	Callback = function(Option)
+        dngn = Option
+	end,
+})
+
+
+local dungeon
+dn:AddToggle({
+	Name = "Start Raid",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		dungeon = Value
+        if Value then
+            spawn(function()
+            local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+            wait(2)
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn].Door["Part2"].CFrame
+            dungeon_func()
+            
+            local textLabel = game.Players.LocalPlayer.PlayerGui.MainGui.HUD.RaidHUD.TimerDisplay.Timer
+        if string.find(textLabel.Text, "0:00") then
+            wait(2)
+             local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+            wait(3)
+            wait(100)
+        end 
+            end)
+          end
+	end,
+})
+
+--[[
+dn:AddToggle({
+	Name = "Auto Attack Gamepass",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+	getgenv().AutoSaveSettings.Attack = Value
+    firesignal(game.Players.LocalPlayer.PlayerGui.MainGui.HUD.BottomButtons.SideButtons.AutoAttack.Button.MouseButton1Click)
+	end,
+})
+]]--
+
+function dungeon_func()
+    spawn(function()
+        while wait(0.1) and dungeon do
+local args = {
+    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+    [2] = true
+}
+game:GetService("ReplicatedStorage").Remote.Raid.SetInRaid:FireServer(unpack(args))
+wait(1)
+local args = {
+[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+[2] = "TargetWorld",
+[3] = selectedsworld
+}
+game:GetService("ReplicatedStorage").Remote.Raid.SetRaidSetting:FireServer(unpack(args))     
+wait(1)
+local args = {
+[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+[2] = "Difficulty",
+[3] = selecteddifficult
+}
+game:GetService("ReplicatedStorage").Remote.Raid.SetRaidSetting:FireServer(unpack(args))
+local args = {
+    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1
+}
+wait(1)
+game:GetService("ReplicatedStorage").Remote.Raid.StartRaid:FireServer(unpack(args))
+        end
+    end)
+end
+
+local function getClosestMob3()
+    local dist, thing = math.huge
+    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
+        if v.Name == "HumanoidRootPart" then
+            local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
+            if mag < dist then
+                dist = mag
+                thing = v
+            end
+        end
+    end
+    if thing then
+        return thing
+    else
+        return nil
+    end
+end
+
+local autotpmob = dn:AddToggle({
+    Name = "Auto Tween Mob (Open Auto Attack Gamepass)",
+    Default = getgenv().AutoSaveSettings.Click,
+    Save = true,
+    Callback = function(Value)
+        rd3 = Value
+        while rd3 do
+            task.wait()
+            repeat
+                task.wait()
+            until game.Players.LocalPlayer.Character ~= nil
+            local mobas3 = getClosestMob3()
+            if mobas3 then
+                local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas3.CFrame * CFrame.new(0,0,7)})
+                tween:Play()
+            end
+        end
+    end,
+})
+
+function fixed()
+getgenv().AutoSaveSettings.Click = false
+wait(0.5)
+getgenv().AutoSaveSettings.Click = true
+end
+
+dn:AddToggle({
+	Name = "Auto Fix Tween Toggle",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+    autfix = Value
+    while autfix do wait(0.2)
+    fixed()
+          end
+	end,
+})
+
+--[[
+local SetLabels = dn:AddLabel("Current Position To Set: None")
+
+local Button = dn:AddButton({
+    Name = "Set Your Position After Done Areas", -- String
+    Callback = function()
+    getgenv().AutoSaveSettings.SavedPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame 
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+       Title = "Position Alert", -- Required
+       Text = "Successfully Set Your Current Position.", -- Required
+    })
+    print("Current Set Position: " ..  tostring(getgenv().AutoSaveSettings.SavedPosition))
+    SetLabels:Set("Current Set Position: " .. game:GetService("Players").LocalPlayer.World.Value) -- String
+end,
+})
+
+local Toggle = dn:AddToggle({
+	Name = "Auto Teleport If Detected Raids", -- String
+	Default =  getgenv().AutoSaveSettings.AutoTeleportRaid , -- Boolean
+	Callback = function(bool)
+        getgenv().AutoSaveSettings.AutoTeleportRaid = bool
+        while task.wait() do 
+           if getgenv().AutoSaveSettings.AutoTeleportRaid == true then 
+        local textLabel = game.Players.LocalPlayer.PlayerGui.MainGui.HUD.RaidHUD.TimerDisplay.Timer
+        
+
+        
+        if string.find(textLabel.Text, "0:00") then
+        wait(1)
+   if getgenv().AutoSaveSettings.Attack == true and getgenv().AutoSaveSettings.Teleport  == true then 
+            autotpmob:Set(false) -- Boolean -- Boolean
+        end 
+        
+            wait(2)
+             local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+            wait(3)
+
+
+            wait(100)
+        end 
+    else
+        wait()
+        break
+    end 
+end 
+    end,
+})
+
+local Toggle = dn:AddToggle({
+	Name = "AutoFarm Raids", -- String
+	Default =  getgenv().AutoSaveSettings.AutoFarmRaidNamek, -- Boolean
+	Callback = function(bool)
+
+  
+        getgenv().AutoSaveSettings.AutoFarmRaidNamek  = bool 
+ while task.wait() do 
+    if   getgenv().AutoSaveSettings.AutoFarmRaidNamek  == true then 
+        pcall(function()
+     local character = game.Players.LocalPlayer.Character
+     local rootPart = character:FindFirstChildOfClass("Part")
+     local closestEnemy
+     local closestDistance = math.huge
+     local enemyName
+     local bossDummy = game:GetService("Workspace").Worlds.Raids.Enemies
+
+     for _, zone in pairs(game:GetService("Workspace").Worlds.Raids:GetChildren()) do
+         if zone:FindFirstChild("Enemies") then
+             for _, enemy in pairs(zone.Enemies:GetChildren()) do
+                 local distance = (rootPart.Position - enemy:WaitForChild("HumanoidRootPart").Position).magnitude
+                 if distance < closestDistance then
+                     closestDistance = distance
+                     closestEnemy = enemy
+                     enemyName = enemy.Name
+                 end
+             end
+         end
+     end
+         
+     if closestEnemy and not game:GetService("Workspace").Worlds.Raids.Enemies then -- find closest enemies 
+         rootPart.CFrame = closestEnemy:FindFirstChildOfClass("HumanoidRootPart").CFrame * CFrame.new(0, 0, 3)
+        wait(3)
+             task.wait(.5)
+     
+         --  \\ Back To Saved Pos // -- 
+     task.wait(.5)
+     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = getgenv().AutoSaveSettings.SavedPosition
+     if getgenv().AutoSaveSettings.Attack == false and getgenv().AutoSaveSettings.Teleport == false then 
+     autotpmob:Set(true) -- Boolean-- Boolean
+  end 
+end
+     task.wait(math.huge)
+     end)
+    else
+     wait()
+     break
+ end 
+    end 
+        end,
+    })
+]]--
+
 
 local tw = Window:MakeTab({
     Name = "Tower",
-    Icon = "rbxassetid://14887567417",
+    Icon = "rbxassetid://14916295920",
     PremiumOnly = false
  }) 
 
@@ -499,7 +921,7 @@ function autoattack()
 end
 local function getClosestMob2()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds.Tower.Enemies:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
@@ -564,7 +986,7 @@ wait(dl1)
 
 local function getClosestMob()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds.Tower:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[currentworld]:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
@@ -605,7 +1027,7 @@ local p = game.Players.LocalPlayer.PlayerGui.MainGui
 
 local ggui = Window:MakeTab({
     Name = "GUI",
-    Icon = "rbxassetid://14887567417",
+    Icon = guiimg,
     PremiumOnly = false
  }) 
 
@@ -664,7 +1086,7 @@ end
 local displayNameToWorldName = {}
 local ttp = Window:MakeTab({
     Name = "Teleport",
-    Icon = "rbxassetid://14887567417",
+    Icon = teleportimg,
     PremiumOnly = false
  }) 
  ttp:AddSection({
@@ -696,7 +1118,7 @@ end
 
 local Player = Window:MakeTab({
     Name = "Local Player",
-    Icon = "rbxassetid://14887567417",
+    Icon = universalimg,
     PremiumOnly = false
 })
 Player:AddParagraph("Local Player ","Speed ")
@@ -727,7 +1149,7 @@ Player:AddSlider({
 })
 local misc = Window:MakeTab({
     Name = "Misc",
-    Icon = "rbxassetid://14887567417",
+    Icon = settingimg,
     PremiumOnly = false
  })
 misc:AddSection({
@@ -841,13 +1263,13 @@ misc:AddButton({
       end    
 })
 local Credit = Window:MakeTab({
-	Name = "DISCORD",
-	Icon = "rbxassetid://14887567417",
+	Name = "Discord",
+	Icon = discordimg,
 	PremiumOnly = false
 	})
-	Credit:AddParagraph("Click To Copy Link Discord COMMUNITY To clipboard ","WHEN YOU COPY WILL HAVE A NOTIFICATION ")
+	Credit:AddLabel("Click To Copy")
 	Credit:AddButton({
-		Name = " COPY SERVER DISCORD LINK ",
+		Name = " Copy Discord Server Link ",
 		Callback = function()
 			local serverLink = "https://discord.gg/RVnjYRWNA9" -- Thay xxxxxxxxxx bằng mã link server Discord của bạn
 			setclipboard(serverLink) 
