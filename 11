@@ -2,7 +2,7 @@ repeat wait() until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification",{
 	Title = "Perfectus Hub", -- Required
 	Text = "Loading Hub", -- Required
-	Icon = "rbxassetid://14887567417" -- Optional 
+	Icon = "rbxassetid://14887567417" -- Optional
 })
 wait(0.1)
 
@@ -31,6 +31,8 @@ local farmingimg = "rbxassetid://7485051715"
 local statsimg = "rbxassetid://14377123173"
 local settingimg = "rbxassetid://11446835336"
 local discordimg = "rbxassetid://1461403871"
+
+local cworld = game.Players.LocalPlayer.World.Value
 
 local perfectushub = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Binintrozza/GUI-SCRIPT/main/GUI_NEW.lua')))()
 
@@ -74,10 +76,8 @@ local ultimodule = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.HUD.
 local IGNORED_WORLDS = {"Raid","Tower"}
 local worldData = require(RS.ModuleScripts.Config.WorldData)
 local client = game.Players.LocalPlayer
-local currentworld = client.World.Value
 local workspace = workspace
 local huge = math.huge
-local Remotes = game:GetService("ReplicatedStorage").Remote
 
 local HumanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
 
@@ -211,6 +211,7 @@ end)
 
 
 
+
     Welcome:AddLabel("Welcome "..game.Players.LocalPlayer.DisplayName)
     
     local Time = Welcome:AddLabel("Server Time")
@@ -323,6 +324,23 @@ end)
 })
 
 Main:AddSection({
+    Name = "Current World"
+})
+
+    www = Main:AddLabel("World")
+    
+    function UpdateClient10()
+    local ww = game.Players.LocalPlayer.World.Value
+    www:Set("World : "..ww)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient10()
+    end
+    end)
+
+Main:AddSection({
     Name = " Auto Farm"
 })
 
@@ -348,7 +366,7 @@ local Dropdown = Main:AddDropdown({
     end
 })
 Main:AddToggle({
-    Name = "Auto Farm Selected Mob",
+    Name = "Auto Farm Selected Mob (req:Teleport Toggle)",
     Default = false,
     Save = true,
     Flag = "AUTO FARM tp Mob Select",
@@ -357,7 +375,7 @@ Main:AddToggle({
     end
 })
 Main:AddToggle({
-    Name = "Teleport (For not Farm in range)",
+    Name = "Teleport to Mob",
     Default = false,
     Save = true,
     Flag = "AUTO FARM tp Mob Select",
@@ -368,7 +386,7 @@ Main:AddToggle({
 
 local function getClosestMob3()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[client.World.Value].Enemies:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
@@ -406,14 +424,16 @@ Main:AddToggle({
 Main:AddSection({
     Name = "Features"
 })
-Main:AddToggle({
-    Name = "Auto Click",
+local autclick = Main:AddToggle({
+    Name = "Auto Click / Ulti",
     Default = false,
     Save = true,
     Flag = "AUTO CLICK",
     Callback = function(toggleState)
         autoclick = toggleState
-        
+        while aulti do wait(0.5)
+        firesignal(client.PlayerGui.MainGui.HUD.BottomButtons.AbilityButton.Activated)
+        end
     end
 })
 
@@ -426,6 +446,51 @@ Main:AddToggle({
         autoCollect=toggleState
     end
 })
+Main:AddSection({		
+    Name = "Quest"
+})
+local qworld = {}
+for _,v in pairs(game:GetService("ReplicatedStorage").UnloadedWorlds:GetChildren()) do
+    table.insert(qworld,v.Name)
+end
+
+local questworld
+Main:AddDropdown({
+	Name = "Select to World",
+	Options = qworld,
+	Callback = function(Option)
+        questworld = Option
+	end,
+})
+
+local autoClaim
+Main:AddToggle({
+    Name = "Auto Claim Quest (not accept)",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(val)
+    autoClaim = val
+        if val then
+            spawn(function()
+                autoClaim_func()
+            end)
+        end
+    end
+})
+
+function autoClaim_func()
+    spawn(function()
+        while wait(0.3) and autoClaim do
+local args = {
+[1] = questworld.."Quest"
+}
+
+game:GetService("ReplicatedStorage").Remote.Data.CompleteQuest:FireServer(unpack(args))
+        end
+    end)
+end
+
 Main:AddSection({		
     Name = "Spirit"
 })
@@ -558,6 +623,24 @@ local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").R
 local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
 local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
 local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+ wait(0.5)
+local args = {[1] = "JJK"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+game:GetService("ReplicatedStorage").Remote.Drops.CaughtSpirit:FireServer()
+
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
+local args = {[1] = "TalentToken",[2] = 1}game:GetService("ReplicatedStorage").Remote.Drops.Items:FireServer(unpack(args))
         
         end
     end
@@ -616,7 +699,7 @@ local howmuch
 hatch:AddButton({
 	Name = "Tp Orb",
 	Callback = function(Value)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Worlds[currentworld][eggtoopen]["RootPart"].CFrame
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Worlds[client.World.Value][eggtoopen]["RootPart"].CFrame
 	end,
 })
 
@@ -626,7 +709,7 @@ function openegg_func()
     spawn(function()
         while wait(0.1) and openegg do
 local args = {
-[1] = workspace.Worlds[currentworld][eggtoopen],
+[1] = workspace.Worlds[client.World.Value][eggtoopen],
 [2] = howmuch
 }
 game:GetService("ReplicatedStorage").Remote.Orbs.OpenOrbs:FireServer(unpack(args))
@@ -639,7 +722,9 @@ local dn = Window:MakeTab({
     Icon = dungeonimg,
     PremiumOnly = false
  }) 
-
+dn:AddSection({
+    Name = "Start Raid"
+ })
 local rd = {}
 for _,v in pairs(game:GetService("ReplicatedStorage").UnloadedWorlds:GetChildren()) do
     table.insert(rd,v.Name)
@@ -676,30 +761,88 @@ dn:AddDropdown({
 	end,
 })
 
+local function getClosestMob3()
+    local dist, thing = math.huge
+    for i, v in next, game:GetService("Workspace").Worlds[client.World.Value].Enemies:GetDescendants() do
+        if v.Name == "HumanoidRootPart" then
+            local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
+            if mag < dist then
+                dist = mag
+                thing = v
+            end
+        end
+    end
+    if thing then
+        return thing
+    else
+        return nil
+    end
+end
 
-local dungeon
-dn:AddToggle({
-	Name = "Start Raid",
+local autotpmob = dn:AddToggle({
+    Name = "Auto Tween Mob",
     Default = false,
     Save = true,
+    Callback = function(Value)
+        rd3 = Value
+        while rd3 do
+            task.wait()
+            repeat
+                task.wait()
+            until game.Players.LocalPlayer.Character ~= nil
+            local mobas3 = getClosestMob3()
+            if mobas3 then
+                local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas3.CFrame * CFrame.new(0,0,3)})
+                tween:Play()
+            end
+        end
+    end,
+})
+local rstraid
+    dn:AddSlider({
+    Name = "Restart Raid Delay",
+    Min = 0,
+    Max = 900,
+    Default = 1,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "/s",
+    Callback = function(dly1)
+    rstraid = dly1
+    end  
+})
+
+local autord = dn:AddToggle({
+	Name = "Start Raid",
+    Default = getgenv().AutoSaveSettings.AutoTeleportRaid,
+    Save = true,
 	Callback = function(Value)
-		dungeon = Value
-        if Value then
-            spawn(function()
+	getgenv().AutoSaveSettings.AutoTeleportRaid = Value
+        while task.wait() do 
+           if getgenv().AutoSaveSettings.AutoTeleportRaid == true then 
             local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
-            wait(2)
+            wait(3)
             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn].Door["Part2"].CFrame
             dungeon_func()
-            
-            local textLabel = game.Players.LocalPlayer.PlayerGui.MainGui.HUD.RaidHUD.TimerDisplay.Timer
+            wait(1)
+            firesignal(client.PlayerGui.MainGui.HUD.BottomButtons.SideButtons.AutoAttack.Button.Activated)
+           
+           local textLabel = game.Players.LocalPlayer.PlayerGui.MainGui.HUD.RaidHUD.TimerDisplay.Timer
         if string.find(textLabel.Text, "0:00") then
-            wait(2)
+              if getgenv().AutoSaveSettings.AutoTeleportRaid == true then 
+            autotpmob:Set(true) -- Boolean -- Boolean
+        end 
              local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
             wait(3)
             wait(100)
         end 
-            end)
-          end
+        
+    else
+        wait()
+        return
+    end 
+    end
 	end,
 })
 
@@ -717,38 +860,37 @@ dn:AddToggle({
 
 function dungeon_func()
     spawn(function()
-        while wait(0.1) and dungeon do
+        while wait(0.1) and getgenv().AutoSaveSettings.AutoTeleportRaid do
 local args = {
-    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn],
     [2] = true
 }
 game:GetService("ReplicatedStorage").Remote.Raid.SetInRaid:FireServer(unpack(args))
 wait(1)
 local args = {
-[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn],
 [2] = "TargetWorld",
 [3] = selectedsworld
 }
 game:GetService("ReplicatedStorage").Remote.Raid.SetRaidSetting:FireServer(unpack(args))     
 wait(1)
 local args = {
-[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1,
+[1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn],
 [2] = "Difficulty",
 [3] = selecteddifficult
 }
 game:GetService("ReplicatedStorage").Remote.Raid.SetRaidSetting:FireServer(unpack(args))
 local args = {
-    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms.Room1
+    [1] = workspace.Worlds.Hub.DungeonTemple["1"].RaidRooms[dngn]
 }
-wait(1)
 game:GetService("ReplicatedStorage").Remote.Raid.StartRaid:FireServer(unpack(args))
         end
     end)
 end
 
-local function getClosestMob3()
+local function getClosestMob4()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[client.World.Value]["1"]:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
@@ -763,45 +905,51 @@ local function getClosestMob3()
         return nil
     end
 end
-
-local autotpmob = dn:AddToggle({
-    Name = "Auto Tween Mob (Open Auto Attack Gamepass)",
-    Default = getgenv().AutoSaveSettings.Click,
+dn:AddSection({
+    Name = "Chest"
+ })
+local raidchest = dn:AddToggle({
+    Name = "Auto Collect Raid Chest",
+    Default = false,
     Save = true,
     Callback = function(Value)
-        rd3 = Value
-        while rd3 do
+        raidchest = Value
+        while raidchest do
+        cagans()
             task.wait()
             repeat
                 task.wait()
             until game.Players.LocalPlayer.Character ~= nil
-            local mobas3 = getClosestMob3()
-            if mobas3 then
+            local mobas4 = getClosestMob4()
+            if mobas4 then
                 local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas3.CFrame * CFrame.new(0,0,7)})
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas4.CFrame * CFrame.new(0,0,3)})
                 tween:Play()
             end
         end
     end,
 })
 
-function fixed()
-getgenv().AutoSaveSettings.Click = false
-wait(0.5)
-getgenv().AutoSaveSettings.Click = true
-end
 
+dn:AddSection({
+    Name = "Optimization"
+ })
 dn:AddToggle({
-	Name = "Auto Fix Tween Toggle",
+	Name = "Auto Restart Raid",
     Default = false,
     Save = true,
 	Callback = function(Value)
-    autfix = Value
-    while autfix do wait(0.2)
-    fixed()
-          end
+    autfix2 = Value
+while autfix2 do task.wait(rstraid)
+local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+wait(1)
+autord:Set(false)
+wait(0.5)
+autord:Set(true)
+end
 	end,
 })
+
 
 --[[
 local SetLabels = dn:AddLabel("Current Position To Set: None")
@@ -921,7 +1069,7 @@ function autoattack()
 end
 local function getClosestMob2()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds[currentworld].Enemies:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[client.World.Value].Enemies:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
@@ -937,7 +1085,7 @@ local function getClosestMob2()
     end
 end
 tw:AddToggle({
-    Name = "Auto Tween Mob (Open Auto Attack Gamepass)",
+    Name = "Auto Tween Mob",
     Default = false,
     Save = true,
     Callback = function(Value)
@@ -950,7 +1098,7 @@ tw:AddToggle({
             local mobas = getClosestMob2()
             if mobas then
                 local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas.CFrame * CFrame.new(0,0,7)})
+                local tween = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = mobas.CFrame * CFrame.new(0,0,3)})
                 tween:Play()
             end
         end
@@ -977,16 +1125,25 @@ tw:AddToggle({
     Save = true,
     Callback = function(Value)
         sttw = Value
-        while sttw do
+        while sttw do 
 game:GetService("ReplicatedStorage").Remote.Tower.StartTower:FireServer()
+wait(1)
+autclick:Set(true)
+wait(1)
+firesignal(client.PlayerGui.MainGui.HUD.BottomButtons.SideButtons.AutoAttack.Button.Activated)
 wait(dl1)
+local textLabel2 = client.PlayerGui.MainGui.HUD.TowerHUD.TimerDisplay.TimerValue
+        if string.find(textLabel2.Text, "0:00") then
+             local args = {[1] = "Hub"}game:GetService("ReplicatedStorage").Remote.Player.Teleport:FireServer(unpack(args))
+            wait(3)
+        end 
         end
     end,
 })
 
 local function getClosestMob()
     local dist, thing = math.huge
-    for i, v in next, game:GetService("Workspace").Worlds[currentworld]:GetDescendants() do
+    for i, v in next, game:GetService("Workspace").Worlds[cworld]:GetDescendants() do
         if v.Name == "HumanoidRootPart" then
             local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).magnitude
             if mag < dist then
