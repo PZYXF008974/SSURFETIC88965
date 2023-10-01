@@ -1,0 +1,842 @@
+
+
+
+
+repeat wait(2) until game:IsLoaded()
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loading Hub", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
+wait(0.1)
+
+    getgenv().AutoSaveSettings = {
+        Mode = "",
+        Teleport = false,
+        Attack = false,
+        Click = false,
+        Collects = false,
+        FarmQuests = false,
+        AutoTeleportRaid  = false,
+        AutoTeleportRaidRumbling = false,
+        AutoFarmRaidNamek = false,
+        AutoFarmRaidRumbling = false,
+
+    }
+
+local mainimg = "rbxassetid://7539983773"
+local openimg = "rbxassetid://9194077649"
+local guiimg = "rbxassetid://4458888115"
+local dungeonimg = "rbxassetid://6730262023"
+local teleportimg = "rbxassetid://6723742952"
+local universalimg = "rbxassetid://10885655986"
+local perfectuslogo = "rbxassetid://14887567417"
+local farmingimg = "rbxassetid://7485051715"
+local statsimg = "rbxassetid://14377123173"
+local settingimg = "rbxassetid://11446835336"
+local discordimg = "rbxassetid://1461403871"
+
+
+local perfectushub = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Binintrozza/GUI-SCRIPT/main/GUI_NEW.lua')))()
+    
+    local MarketplaceService = game:GetService("MarketplaceService")
+
+    local placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    
+    local Window = perfectushub:MakeWindow({Name = "Perfectus Hub      "..placeName, HidePremium = false, SaveConfig = true, IntroEnabled = true, IntroText = "Perfectus Hub", IntroIcon = "rbxassetid://14887567417",Intro ="rbxassetid://14887567417" , ConfigFolder = "Perfectus hub"})
+    
+    local Welcome = Window:MakeTab({
+        Name = "Welcome",
+        Icon = statsimg,
+        PremiumOnly = false
+    }) 
+
+    local Main = Window:MakeTab({
+        Name = "Main",
+        Icon = mainimg,
+        PremiumOnly = false
+    }) 
+   
+
+local HS = game:GetService("HttpService")
+local RS = game:GetService("ReplicatedStorage")
+local WS = game:GetService("Workspace")
+local P = game:GetService("Players")
+local VU = game:GetService("VirtualUser")
+local VIM = game:GetService("VirtualInputManager")
+local RunS = game:GetService("RunService")
+local TS = game:GetService("TweenService")
+local httpRequest = (syn and syn.request) or http_request or request or (http and http.request) or nil
+local player = P.LocalPlayer
+local originalCameraZoomDistance = player.CameraMaxZoomDistance
+local character = player.Character
+local client = game.Players.LocalPlayer
+local workspace = workspace
+local huge = math.huge
+
+local HumanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+
+local ChildAdded = false
+
+    Welcome:AddLabel("Welcome "..game.Players.LocalPlayer.DisplayName)
+    
+    local Time = Welcome:AddLabel("Server Time")
+    function UpdateTime()
+    local GameTime = math.floor(workspace.DistributedGameTime+0.5)
+    local Hour = math.floor(GameTime/(60^2))%24
+    local Minute = math.floor(GameTime/(60^1))%60
+    local Second = math.floor(GameTime/(60^0))%60
+    Time:Set("Game Time : Hours : "..Hour.." Minutes : "..Minute.." Seconds : "..Second)
+    end
+    
+    spawn(function()
+    while task.wait() do
+    pcall(function()
+    UpdateTime()
+    end)
+    end
+    end)
+    
+    Client = Welcome:AddLabel("Client")
+    
+    function UpdateClient()
+    local Fps = workspace:GetRealPhysicsFPS()
+    Client:Set("Fps : "..Fps)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient()
+    end
+    end)
+    
+    Client1 = Welcome:AddLabel("Client")
+    
+    function UpdateClient1()
+    local Ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    Client1:Set("Ping : "..Ping)
+    end
+    
+    spawn(function()
+    while true do wait(.1)
+    UpdateClient1()
+    end
+    end)
+    
+    local Thanksforreport = Welcome:AddLabel("Report Bug")
+
+    local ReportBugs = nil
+    Welcome:AddTextbox({
+	Name = "Text Report Bug",
+	Default = "Here",
+	TextDisappear = false,
+	Callback = function(value)
+	ReportBugstext = value
+	end	  
+})
+    
+   
+    local url = "https://discord.com/api/webhooks/1157214783897096202/wp7MmLOgCDCacfmm8R90V3t0EiWpCKZc5RkD67ZlasLg0xfS4QB6aqnANXzSAMXT1e72"
+    Welcome:AddButton({
+	Name = "Enter",
+	Callback = function()
+       Thanksforreport:Set("Thank You For Reported Bugs")
+        wait(5)
+        Thanksforreport:Set("Report Bug")
+    local data = {
+        ["username"] = 'Perfectus',
+        ['content'] = '',
+        ["avatar_url"] = "",
+        ["embeds"] = {
+            {
+                ["description"] = "**Bug Reporting Webhook**",
+                ["color"] = tonumber(255), -- color id		
+                ["type"] = "rich",
+                ["fields"] =  {
+                    {
+                        ["name"] = "Hwid",
+                        ["value"] = '```lua'..'\n'..game:GetService("RbxAnalyticsService"):GetClientId()..'\n```',
+                    },
+                    {
+                        ["name"] = "Username",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.Name..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Display Name",
+                        ["value"] = '```lua'..'\n'..game.Players.LocalPlayer.DisplayName..'\n```',
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "Reported Bug",
+                        ["value"] = '```lua'..'\n'..ReportBugstext..'\n```',
+                        ["inline"] = false
+                    }
+                },
+                ["footer"] = {
+                    ["text"] = "Reported Bug",
+                },
+                ["timestamp"] = DateTime.now():ToIsoDate(),
+            }
+        },
+    }
+    local newdata = game:GetService("HttpService"):JSONEncode(data)
+    local headers = {["content-type"] = "application/json"}
+    request = http_request or request or HttpPost or syn.request
+    local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+    request(abcdef)
+    
+    end,
+})
+
+Main:AddSection({
+    Name = "Inf"
+})
+    Main:AddButton({
+    Name = "Inf",
+    Save = true,
+    Callback = function()
+client.PlayerGui.GameUI.Currency.Bicep.Amount.Text = "Inf+"
+client.PlayerGui.GameUI.Currency.Hand.Amount.Text = "Inf+"
+client.PlayerGui.GameUI.Currency.Rebirths.Amount.Text = "Inf+"
+    end
+})
+
+
+Main:AddSection({
+    Name = "Main"
+})
+
+
+    Main:AddToggle({
+    Name = "Auto Click",
+    Default = false,
+    Save = true,
+    Flag = "AUTO CLICK",
+    Callback = function(toggleState)
+        autoclick = toggleState
+        while autoclick do wait(0.1)
+        game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.ToolService.RE.onClick:FireServer()
+
+        end
+    end
+})
+
+Main:AddToggle({
+    Name = "Auto Rebirth",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(toggleState)
+        Rebirth=toggleState
+        while Rebirth do wait(0.5)
+        game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.RebirthService.RE.onRebirthRequest:FireServer()
+        end
+    end
+})
+Main:AddToggle({
+    Name = "Auto Spin",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(toggleState)
+        Spin=toggleState
+        while Spin do wait(0.5)
+        game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.SpinService.RE.onSpinRequest:FireServer()
+        end
+    end
+})
+Main:AddToggle({
+    Name = "Auto Open All Arm Crates",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(toggleState)
+        Crates=toggleState
+        while Crates do wait(0.5)
+        game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.ArmsService.RF.RollAllCratesForPlayer:InvokeServer()
+        end
+    end
+})
+
+Main:AddToggle({
+    Name = "Auto Claim Gifts",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(toggleState)
+        Gifts=toggleState
+        while Gifts do wait(5)
+        local args = {[1] = "1"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "2"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "3"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "4"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "5"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "6"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "7"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "8"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "9"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "10"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "11"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "12"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "13"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+        local args = {[1] = "14"}game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.TimedRewardService.RE.onClaim:FireServer(unpack(args))
+
+        end
+    end
+})
+
+Main:AddSection({		
+    Name = "Rebirth Upgrade"
+})
+local upg = {}
+for _,v in pairs(client.PlayerGui.GameUI.Menus.SuperUpgrades.Main.List:GetChildren()) do
+    table.insert(upg,v.Name)
+end
+
+
+local upgselected
+Main:AddDropdown({
+	Name = "Select to Upgrades",
+	Options = upg,
+	Callback = function(Option)
+        upgselected = Option
+	end,
+})
+
+local autoUpg
+Main:AddToggle({
+    Name = "Auto Upgrade Selected",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collects",
+    Callback = function(val)
+    autoUpg = val
+        if val then
+            spawn(function()
+                autoUpg_func()
+            end)
+        end
+    end
+})
+
+function autoUpg_func()
+    spawn(function()
+        while wait(0.1) and autoUpg do
+local args = {
+    [1] = upgselected
+}
+
+game:GetService("ReplicatedStorage").Communication.Functions[""]:InvokeServer(unpack(args))
+        end
+    end)
+end
+
+
+
+local ff = Window:MakeTab({
+    Name = "Fight",
+    Icon = farmingimg,
+    PremiumOnly = false
+ })
+
+ff:AddSection({		
+    Name = "Fight"
+})
+local qworld = {}
+for _,v in pairs(game:GetService("Workspace").Zones:GetChildren()) do
+    table.insert(qworld,v.Name)
+end
+
+local questworld
+ff:AddDropdown({
+	Name = "Select to Zone",
+	Options = qworld,
+	Callback = function(Option)
+        questworld = Option
+	end,
+})
+local enemy = {}
+for i, v in pairs(game:GetService("Workspace").Zones:GetDescendants()) do
+    if v:IsA "Model" and v.Parent.Name == "NPC" then
+		if not table.find(enemy, tostring(v)) then
+			table.insert(enemy, tostring(v))
+		end
+    end
+end
+
+
+local selectedenemy
+local Dropdown = ff:AddDropdown({
+	Name = "Select to NPC",
+	Options = enemy,
+	Callback = function(Option)
+        selectedenemy = Option
+	end,
+})
+
+local afight
+    ff:AddSlider({
+    Name = "Auto Fight Delay Delay /s",
+    Min = 0.1,
+    Max = 12,
+    Default = 0.1,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 0.1,
+    ValueName = "/s",
+    Callback = function(dly1)
+    afight = dly1
+    end  
+})
+
+local autoClaim
+ff:AddToggle({
+    Name = "Auto Fight NPC",
+    Default = false,
+    Save = true,
+    Flag = "AUTO Collect",
+    Callback = function(val)
+    autoClaim = val
+        if val then
+            spawn(function()
+                autoClaim_func()
+            end)
+        end
+    end
+})
+
+function autoClaim_func()
+    spawn(function()
+        while wait(afight) and autoClaim do
+local args = {
+    [1] = selectedenemy,
+    [2] = workspace.Zones[questworld].Interactables.ArmWrestling.NPC[selectedenemy].Table,
+    [3] = questworld
+}
+
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.ArmWrestleService.RE.onEnterNPCTable:FireServer(unpack(args))
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.ArmWrestleService.RE.onClickRequest:FireServer()
+
+        end
+    end)
+end
+
+
+local hatch = Window:MakeTab({
+    Name = "Open Egg",
+    Icon = openimg,
+    PremiumOnly = false
+ })
+
+
+local craftall = client.PlayerGui.GameUI.Menus.PetInventory.Toolbar.CraftAll
+
+hatch:AddToggle({
+	Name = "Auto Craft All Pet",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		crall = Value
+         while crall do wait()
+       firesignal(craftall.MouseButton1Click)
+          end
+	end,
+})
+hatch:AddToggle({
+	Name = "Auto Equip Best Pet",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		eqbest = Value
+while eqbest do wait(1)
+local args = {
+    [1] = game:GetService("Players").LocalPlayer
+}
+
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.PetService.RF.equipBest:InvokeServer(unpack(args))
+
+          end
+	end,
+})
+hatch:AddToggle({
+	Name = "Auto Spin Lucky Draw",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		Lucky = Value
+while Lucky do wait(0.1)
+local args = {
+    [1] = true
+}
+
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.BlueprintService.RF.LuckyDraw:InvokeServer(unpack(args))
+
+          end
+	end,
+})
+
+local eggs ={}
+for _,v in pairs(game:GetService("ReplicatedStorage").Eggs:GetChildren()) do
+    table.insert(eggs,v.Name)
+end
+
+
+
+local eggtoopen
+hatch:AddDropdown({
+	Name = "Select to Egg",
+	Options = eggs,
+	Callback = function(Option)
+        eggtoopen = Option
+	end,
+})
+
+
+local openegg
+hatch:AddToggle({
+	Name = "Open Egg",
+    Default = false,
+    Save = true,
+	Callback = function(Value)
+		openegg = Value
+        if Value then
+            spawn(function()
+                openegg_func()
+            end)
+          end
+	end,
+})
+local howmuch
+    hatch:AddSlider({
+    Name = "Open Egg Delay /S",
+    Min = 0.1,
+    Max = 3,
+    Default = 0.1,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 0.1,
+    ValueName = "/s",
+    Callback = function(dly1)
+    howmuch = dly1
+    end  
+})
+
+function openegg_func()
+    spawn(function()
+        while wait(howmuch) and openegg do
+local args = {
+    [1] = eggtoopen,
+    [2] = {}
+}
+
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.EggService.RF.purchaseEgg:InvokeServer(unpack(args))
+
+        end
+    end)
+end
+
+local ggui = Window:MakeTab({
+    Name = "Gui",
+    Icon = guiimg,
+    PremiumOnly = false
+ }) 
+
+local gui ={}
+for _,v in pairs(client.PlayerGui.GameUI.Menus:GetChildren()) do
+    table.insert(gui,v.Name)
+end
+
+local openthegui
+ggui:AddDropdown({
+	Name = "Select to Gui",
+	Options = gui,
+	Callback = function(Option)
+        openthegui = Option
+	end,
+})
+
+ggui:AddToggle({
+	Name = "Open Selected Gui",
+    Default = false,
+	Callback = function(Value)
+		opengui = Value
+        if Value then
+            spawn(function()
+                opengui_func()
+            end)
+        end
+	end,
+})
+
+ggui:AddToggle({
+	Name = "Close Selected Gui",
+    Default = false,
+	Callback = function(Value)
+		opengui2 = Value
+        if Value then
+            spawn(function()
+                opengui_func2()
+            end)
+        end
+	end,
+})
+
+ggui:AddButton({
+	Name = "Disable Notification",
+    Save = true,
+	Callback = function(Value)
+client.PlayerGui.Notifications.Enabled = false
+	end,
+})
+ggui:AddButton({
+	Name = "Hide Popups",
+    Save = true,
+	Callback = function(Value)
+client.PlayerGui.GameUI.Popups.Visible = false
+	end,
+})
+function opengui_func()
+    spawn(function()
+    client.PlayerGui.GameUI.Menus[openthegui].Visible = true
+    end)
+end
+
+function opengui_func2()
+    spawn(function()
+    client.PlayerGui.GameUI.Menus[openthegui].Visible = false
+    end)
+end
+
+
+local ttp = Window:MakeTab({
+    Name = "Teleport",
+    Icon = teleportimg,
+    PremiumOnly = false
+ }) 
+ ttp:AddSection({
+    Name = "TELEPORT : "
+
+}) 
+
+local worlds ={}
+for _,v in pairs(game:GetService("Workspace").Zones:GetChildren()) do
+    table.insert(worlds,v.Name)
+end
+
+local selectedworlds
+local Dropdown2 = ttp:AddDropdown({
+	Name = "Select to Zones",
+	Options = worlds,
+	Callback = function(Option)
+        selectedworlds = Option
+	end,
+})
+
+local enemys = {}
+for i, v in pairs(game:GetService("Workspace").Zones:GetDescendants()) do
+    if v:IsA "Model" and v.Parent.Name == "Teleports" then
+		if not table.find(enemys, tostring(v)) then
+			table.insert(enemys, tostring(v))
+		end
+    end
+end
+
+
+local selectedenemys
+local Dropdown = ttp:AddDropdown({
+	Name = "Select to Teleports",
+	Options = enemys,
+	Callback = function(Option)
+        selectedenemys = Option
+	end,
+})
+
+ttp:AddButton({
+	Name = "Teleport Selected",
+    Save = true,
+	Callback = function(Value)
+local args = {
+    [1] = workspace.Zones[selectedworlds].Interactables.Teleports.Locations[selectedenemys]
+}
+
+game:GetService("ReplicatedStorage").Packages._Index["sleitnick_knit@1.4.7"].knit.Services.ZoneService.RE.teleport:FireServer(unpack(args))
+
+	end,
+})
+
+
+local Player = Window:MakeTab({
+    Name = "Local Player",
+    Icon = universalimg,
+    PremiumOnly = false
+})
+Player:AddParagraph("Local Player ","Speed ")
+Player:AddSlider({
+    Name = "Walkspeed",
+    Min = 0,
+    Max = 500,
+    Default = 50,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Speeds",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+
+    end  
+})
+Player:AddSlider({
+    Name = "JumpPower",
+    Min = 0,
+    Max = 500,
+    Default = false,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Powers",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
+    end  
+})
+local misc = Window:MakeTab({
+    Name = "Misc",
+    Icon = settingimg,
+    PremiumOnly = false
+ })
+misc:AddSection({
+    Name = "Server Misc"
+})
+misc:AddParagraph("Anti Afk NOTIFICATION"," Script Will Auto anti afk when you excute  !")
+ function antiAFK()
+    player.Idled:Connect(function()
+        VU:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        VU:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end)
+end
+    antiAFK()
+function CopyjobID()
+    local JobId = game.JobId
+
+    setclipboard(JobId)
+end
+local whitescreen = false
+misc:AddToggle({
+    Name = "White Screen ",
+    Default = false,
+    Callback = function (tooglestate)
+        whitescreen = tooglestate
+if whitescreen == true then
+        game:GetService("RunService"):Set3dRenderingEnabled(false)
+        elseif whitescreen == false  then
+            game:GetService("RunService"):Set3dRenderingEnabled(true)
+
+    end
+end
+
+})
+
+misc:AddButton({
+    Name = "Hop Sever ",
+    Default = false,
+    Callback = function()
+        local Player = game.Players.LocalPlayer    
+        local Http = game:GetService("HttpService")
+        local TPS = game:GetService("TeleportService")
+        local Api = "https://games.roblox.com/v1/games/"
+
+        local _place,_id = game.PlaceId, game.JobId
+        local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=10"
+        function ListServers(cursor)
+           local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+           return Http:JSONDecode(Raw)
+        end
+
+        time_to_wait = 3 
+        while wait(time_to_wait) do
+           Player.Character.HumanoidRootPart.Anchored = true
+           local Servers = ListServers()
+           local Server = Servers.data[math.random(1,#Servers.data)]
+           TPS:TeleportToPlaceInstance(_place, Server.id, Player)
+        end
+            perfectushub:MakeNotification({
+                Name = "success Copy",
+                Content = "Copy Your JobID",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+   end
+})
+misc:AddButton({
+    Name = "Copy JobID Sever",
+    Default = false,
+    Callback = function()
+            CopyjobID()
+            perfectushub:MakeNotification({
+                Name = "success Copy",
+                Content = "Copy Your JobID",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+   end
+})
+misc:AddTextbox({
+    Name = "Type Your JobID And Enter",
+    Default = false,
+    TextDisappear = true,
+    Callback = function(vew)
+        Players = game:GetService("Players")
+
+        PlaceId, JobId = game.PlaceId, vew  
+TeleportService = game:GetService("TeleportService")
+TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+    end	  
+})
+ misc:AddSection({
+    Name = "Save + Load Config"
+})
+misc:AddButton({
+    Name = "Save ConFig !",
+    Callback = function()
+     perfectushub:SaveCfg("Perfectus hub")
+            perfectushub:MakeNotification({
+                Name = "Success Save ConFig",
+                Content = "If you want use this config just load it",
+                Image = "rbxassetid://14887567417",
+                Time = 5
+            })
+      end    
+})
+misc:AddButton({
+    Name = "Load ConFig !",
+    Callback = function()
+        perfectushub:Init()
+      end    
+})
+local Credit = Window:MakeTab({
+	Name = "Discord",
+	Icon = discordimg,
+	PremiumOnly = false
+	})
+	Credit:AddLabel("Click To Copy")
+	Credit:AddButton({
+		Name = " Copy Discord Server Link ",
+		Callback = function()
+			local serverLink = "https://discord.gg/RVnjYRWNA9" -- Thay xxxxxxxxxx bằng mã link server Discord của bạn
+			setclipboard(serverLink) 
+			local success = true
+			if success then
+				perfectushub:MakeNotification({
+					Name = "Copy To clipboard",
+					Content = "Let Join DISCORD SEVER ( Perfectus Hub | COMMUNITY )",
+					Image = "rbxassetid://14887567417",
+					Time = 5
+				})
+			end
+		end
+	})   
+
+wait(1)
+
+game:GetService("StarterGui"):SetCore("SendNotification",{
+	Title = "Perfectus Hub", -- Required
+	Text = "Loaded", -- Required
+	Icon = "rbxassetid://14887567417" -- Optional
+})
