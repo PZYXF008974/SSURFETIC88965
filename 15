@@ -1,6 +1,6 @@
 
 
-
+ 
 
 repeat wait(2) until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification",{
