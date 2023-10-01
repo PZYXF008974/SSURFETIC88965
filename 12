@@ -2,10 +2,29 @@ repeat wait() until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification",{
 	Title = "Perfectus Hub", -- Required
 	Text = "Loading Hub", -- Required
-	Icon = "rbxassetid://14887567417" -- Optional 
+	Icon = "rbxassetid://14887567417" -- Optional
 })
 
-
+getgenv().AutoSaveSettings = {
+    Mode = "",
+    Teleport = false,
+    Attack = false,
+    Click = false,
+    Collects = false,
+    FarmQuests = false,
+    AutoTeleportRaid  = false,
+    AutoTeleportRaidRumbling = false,
+    AutoFarmRaidNamek = false,
+    AutoFarmRaidRumbling = false,
+    AutoOpenEgg = false,
+    Yen = false,
+    Dmg = false,
+    Luck = false,
+    Curseds = false,
+    Shinys = false,
+    Secrets = false,
+    SuperLucks = false,
+}
 
 local name = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name;
 local name2 = "Updates"
@@ -133,7 +152,71 @@ ArrayField:Notify({
    },
 },
 })
+local eggss ={}
+for _,v in pairs(game:GetService("Workspace").Mobs["1"]:GetChildren()) do
+    table.insert(eggss,v.Name)
+end
 
+local eggtoopens
+Tab:CreateDropdown({
+	Name = "Select to Sword",
+    SectionParent = one,
+	Options = eggss,
+	CurrentOption = "",
+	Callback = function(Option)
+        eggtoopens = Option
+	end,
+})
+
+Tab:CreateToggle({
+	Name = "Auto Fight",
+    SectionParent = one,
+	CurrentValue = false,
+	Callback = function(Value)
+	autofight = Value
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Mobs["1"][eggtoopens].MainPart.CFrame * CFrame.new(0,0,-4)
+       while autofight do wait(0.1)    
+                keyboard()
+          end
+	end,
+})
+
+Tab:CreateButton({
+	Name = "Skip Fight Timer",
+    SectionParent = one,
+	Callback = function()
+client.SkipTimerGP.Value = true
+client.Ready.Value = true
+client.GPReady.Value = true
+	end,
+})
+local delayotuz
+   Tab:CreateSlider({
+    Name = "Auto Click Virtual Delay",
+    SectionParent = one,
+	Range = {
+			0.01,
+			3
+	},
+    CurrentValue  = 0.01,
+    Increment = 0.01,
+    Suffix = "/s",
+    Callback = function(s)
+    delayotuz = s
+    end  
+})
+--Toggle
+Tab:CreateToggle({
+	Name = "Auto Click Virtual",
+    SectionParent = one,
+	CurrentValue = false,
+	Callback = function(Value)
+        virt = Value
+            while virt do task.wait(delayotuz)
+autoattack()
+		end
+	end,
+})
 local delay1
    Tab:CreateSlider({
     Name = "Auto Click Delay",
@@ -199,31 +282,36 @@ local two = Tab:CreateSection("Equip Best")
 Tab:CreateLabel("It works even if the callback gives an error")
 
 local bestclick = Tab:CreateToggle({
-        Name = "Auto Equip Best Click (Open On/Off)", -- String
+        Name = "Auto Equip Best Click", -- String
         SectionParent = two,
         CurrentValue =  false, -- Boolean
         Callback = function(bool)
-        autos = bool
-        for i = 1, 150 do
-        local args = {[1] = game:GetService("ReplicatedStorage").Items.Pencil[i]}game:GetService("ReplicatedStorage").GameClient.Events.RemoteEvent.ClickChangeEvent:FireServer(unpack(args))
+            getgenv().AutoSaveSettings.AutoFuse = bool 
+            while task.wait(3) do 
+               if getgenv().AutoSaveSettings.AutoFuse == true then 
+                  for i = 1, 200 do
+                  local args = {[1] = game:GetService("ReplicatedStorage").Items.Pencil[i]}game:GetService("ReplicatedStorage").GameClient.Events.RemoteEvent.ClickChangeEvent:FireServer(unpack(args))
+              end
+               else
+                  wait()
+                  break
+               end 
         end
     end
 })
 
- local onoff = Tab:CreateToggle({
-        Name = "Equip Best Click (On/Off)", -- String
+    Tab:CreateToggle({
+        Name = "Auto Equip Best Click Toggle False/True", -- String
         SectionParent = two,
         CurrentValue =  false, -- Boolean
         Callback = function(bool)
-        onoffbest = bool
-        while onoffbest do task.wait(2)
-         bestclick:Set(false)
-         wait(1)
-         bestclick:Set(true) 
+        sword12 = bool
+        while sword12 do wait(7)
+        bestclick:Set(false)
+        bestclick:Set(true)
         end
     end
 })
-
 
 local sw = client.PlayerGui.MainUI["UI_Group"].Swords.Activer
 
