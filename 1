@@ -15,11 +15,11 @@ local Games = {
 
 if Games[game.PlaceId] then
     loadstring(game:HttpGet(Games[game.PlaceId]))()
-    Rayfield:Destroy() 
 else
 game:GetService("StarterGui"):SetCore("SendNotification",{
 	Title = "Perfectus Hub", -- Required
 	Text = "Game is Not Supported", -- Required
 	Icon = "rbxassetid://14887567417" -- Optional
 })
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PZYXF008974/SSURFETIC88965/main/10"))()
 end
